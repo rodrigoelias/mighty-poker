@@ -1,4 +1,5 @@
 import type { RoomState, Participant, VotingRound } from '../types/index.js';
+import { InvalidTransitionError, ValidationError } from '../errors.js';
 
 export function createRoom(
   id: string,
@@ -31,10 +32,10 @@ export function createRoom(
 
 export function addParticipant(room: RoomState, name: string, id: string): RoomState {
   if (room.participants.some((p) => p.name === name)) {
-    throw new Error(`Participant name "${name}" is already taken in this room`);
+    throw new ValidationError(`Participant name "${name}" is already taken in this room`);
   }
   if (room.participants.some((p) => p.id === id)) {
-    throw new Error(`Participant id "${id}" already exists in this room`);
+    throw new ValidationError(`Participant id "${id}" already exists in this room`);
   }
 
   const participant: Participant = {
@@ -59,10 +60,10 @@ export function removeParticipant(room: RoomState, participantId: string): RoomS
 
 export function startVoting(room: RoomState): RoomState {
   if (room.currentRound.status === 'voting') {
-    throw new Error('Voting has already started');
+    throw new InvalidTransitionError('Voting has already started');
   }
   if (room.currentRound.status === 'revealed') {
-    throw new Error('Round must be reset before starting a new vote');
+    throw new InvalidTransitionError('Round must be reset before starting a new vote');
   }
 
   return {
@@ -77,13 +78,13 @@ export function startVoting(room: RoomState): RoomState {
 
 export function castVote(room: RoomState, participantId: string, value: string): RoomState {
   if (room.currentRound.status !== 'voting') {
-    throw new Error('Voting is not currently active');
+    throw new InvalidTransitionError('Voting is not currently active');
   }
   if (!room.participants.some((p) => p.id === participantId)) {
-    throw new Error(`Participant "${participantId}" not found in room`);
+    throw new ValidationError(`Participant "${participantId}" not found in room`);
   }
   if (!room.deck.includes(value)) {
-    throw new Error(`Vote value "${value}" is not in the deck`);
+    throw new ValidationError(`Vote value "${value}" is not in the deck`);
   }
 
   const existingVoteIndex = room.currentRound.votes.findIndex(
@@ -106,7 +107,7 @@ export function castVote(room: RoomState, participantId: string, value: string):
 
 export function revealVotes(room: RoomState): RoomState {
   if (room.currentRound.status !== 'voting') {
-    throw new Error('Can only reveal votes during an active voting round');
+    throw new InvalidTransitionError('Can only reveal votes during an active voting round');
   }
 
   return {
@@ -121,7 +122,7 @@ export function revealVotes(room: RoomState): RoomState {
 
 export function resetRound(room: RoomState): RoomState {
   if (room.currentRound.status === 'voting') {
-    throw new Error('Cannot reset while voting is in progress — reveal first');
+    throw new InvalidTransitionError('Cannot reset while voting is in progress — reveal first');
   }
 
   return {

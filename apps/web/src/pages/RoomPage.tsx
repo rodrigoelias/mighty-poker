@@ -7,6 +7,7 @@ import { ParticipantList } from '../components/ParticipantList.js';
 import { CardDeck } from '../components/CardDeck.js';
 import { RevealedResults } from '../components/RevealedResults.js';
 import { FacilitatorControls } from '../components/FacilitatorControls.js';
+import { ConnectionBanner } from '../components/ConnectionBanner.js';
 
 export default function RoomPage() {
   const { roomId } = useParams<{ roomId: string }>();
@@ -52,6 +53,7 @@ export default function RoomPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
+      <ConnectionBanner connected={connected} />
       <RoomHeader
         roomName={room.name}
         roomId={room.id}
