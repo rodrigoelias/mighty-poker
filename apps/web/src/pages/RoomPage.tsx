@@ -2,20 +2,23 @@ import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getSocket, startRound, castVote, revealVotes, resetRound } from '../lib/socket.js';
 import { useRoomStore } from '../stores/room-store.js';
+import { RoomHeader } from '../components/RoomHeader.js';
+import { ParticipantList } from '../components/ParticipantList.js';
+import { CardDeck } from '../components/CardDeck.js';
+import { RevealedResults } from '../components/RevealedResults.js';
+import { FacilitatorControls } from '../components/FacilitatorControls.js';
 
 export default function RoomPage() {
   const { roomId } = useParams<{ roomId: string }>();
   const navigate = useNavigate();
-  const { room, participantId, token, myVote, setRoom, setIdentity, setConnected } =
+  const { room, participantId, token, myVote, setRoom, setConnected, connected } =
     useRoomStore();
 
   useEffect(() => {
     if (!roomId) return;
 
-    // Restore from localStorage if page was refreshed
     const savedToken = localStorage.getItem(`room-token-${roomId}`);
     if (!token && savedToken) {
-      // Need to rejoin — redirect to join page
       navigate(`/room/${roomId}/join`);
       return;
     }
@@ -34,106 +37,91 @@ export default function RoomPage() {
   }, [roomId, token, navigate, setRoom, setConnected]);
 
   if (!room) {
-    return <p>Loading room...</p>;
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <p className="text-gray-500">Loading room...</p>
+      </div>
+    );
   }
 
   const isVoting = room.currentRound.status === 'voting';
   const isRevealed = room.currentRound.status === 'revealed';
-  const isFacilitator = room.participants.find((p) => p.id === participantId)?.role === 'facilitator';
+  const isFacilitator =
+    room.participants.find((p) => p.id === participantId)?.role === 'facilitator';
   const currentVote = myVote();
 
-  async function handleStartRound() {
-    if (!roomId) return;
-    await startRound(roomId);
-  }
-
-  async function handleVote(value: string) {
-    if (!roomId) return;
-    await castVote(roomId, value);
-  }
-
-  async function handleReveal() {
-    if (!roomId) return;
-    await revealVotes(roomId);
-  }
-
-  async function handleReset() {
-    if (!roomId) return;
-    await resetRound(roomId);
-  }
-
-  function copyInviteLink() {
-    const url = `${window.location.origin}/room/${roomId}/join`;
-    navigator.clipboard.writeText(url).catch(() => {
-      prompt('Copy this link:', url);
-    });
-  }
-
   return (
-    <div>
-      <h1>{room.name}</h1>
-      <button onClick={copyInviteLink}>Copy Invite Link</button>
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <RoomHeader
+        roomName={room.name}
+        roomId={room.id}
+        participantCount={room.participants.filter((p) => p.connected).length}
+        roundStatus={room.currentRound.status}
+        connected={connected}
+      />
 
-      <h2>Participants ({room.participants.length})</h2>
-      <ul>
-        {room.participants.map((p) => {
-          const voted = room.currentRound.votes.some((v) => v.participantId === p.id);
-          return (
-            <li key={p.id}>
-              {p.name}
-              {p.role === 'facilitator' && ' (facilitator)'}
-              {!p.connected && ' (disconnected)'}
-              {isVoting && (voted ? ' ✓' : ' …')}
-            </li>
-          );
-        })}
-      </ul>
-
-      {isRevealed && (
-        <div>
-          <h2>Results</h2>
-          <ul>
-            {room.currentRound.votes.map((v) => {
-              const p = room.participants.find((x) => x.id === v.participantId);
-              return (
-                <li key={v.participantId}>
-                  {p?.name ?? v.participantId}: <strong>{v.value}</strong>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      )}
-
-      {isVoting && (
-        <div>
-          <h2>Cast your vote</h2>
-          <div>
-            {room.deck.map((value) => (
-              <button
-                key={value}
-                onClick={() => handleVote(value)}
-                disabled={currentVote === value}
-                aria-pressed={currentVote === value}
-              >
-                {value}
-              </button>
-            ))}
+      <main className="flex-1 grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6 p-6 max-w-6xl mx-auto w-full">
+        {/* Left column: participants */}
+        <aside className="space-y-4">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
+            <ParticipantList
+              participants={room.participants}
+              currentRound={room.currentRound}
+              currentParticipantId={participantId}
+            />
           </div>
-        </div>
-      )}
+        </aside>
 
-      <div>
-        {isFacilitator && room.currentRound.status === 'idle' && (
-          <button onClick={handleStartRound}>Start Voting</button>
-        )}
-        {isFacilitator && isVoting && (
-          <button onClick={handleReveal}>Reveal Votes</button>
-        )}
-        {isFacilitator && isRevealed && (
-          <button onClick={handleReset}>New Round</button>
-        )}
-      </div>
+        {/* Right column: voting area */}
+        <section className="space-y-6">
+          {/* Facilitator controls */}
+          {isFacilitator && (
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
+              <FacilitatorControls
+                roundStatus={room.currentRound.status}
+                onStart={() => roomId && startRound(roomId)}
+                onReveal={() => roomId && revealVotes(roomId)}
+                onReset={() => roomId && resetRound(roomId)}
+              />
+            </div>
+          )}
+
+          {/* Voting cards */}
+          {isVoting && (
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+              <CardDeck
+                deck={room.deck}
+                selectedValue={currentVote}
+                disabled={false}
+                onSelect={(value) => roomId && castVote(roomId, value)}
+              />
+            </div>
+          )}
+
+          {/* Waiting state */}
+          {room.currentRound.status === 'idle' && (
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
+              <p className="text-4xl mb-4">🃏</p>
+              <h2 className="text-xl font-semibold text-gray-700 mb-2">
+                Waiting for facilitator to start voting
+              </h2>
+              <p className="text-gray-400 text-sm">
+                Participants will be able to cast their votes once the round begins
+              </p>
+            </div>
+          )}
+
+          {/* Results */}
+          {isRevealed && (
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+              <RevealedResults
+                votes={room.currentRound.votes}
+                participants={room.participants}
+              />
+            </div>
+          )}
+        </section>
+      </main>
     </div>
   );
 }
