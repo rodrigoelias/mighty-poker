@@ -5,7 +5,7 @@ import { RoomStore } from './room-store.js';
 import { registerRoomHandlers } from './ws/room-handlers.js';
 import { verifyToken } from './auth.js';
 
-export function createApp() {
+export function createApp(): { app: express.Express; io: SocketIOServer; store: RoomStore } {
   const app = express();
   const store = new RoomStore();
   const timers = new Map<string, ReturnType<typeof setTimeout>>();
