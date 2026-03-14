@@ -119,6 +119,8 @@ export function registerRoomHandlers(
         const participantId = uuidv4();
         const updated = addParticipant(room, payload.participantName, participantId);
         store.set(updated);
+        // Cancel auto-reveal: new participant joins and hasn't voted yet
+        cancelAutoReveal(timers, payload.roomId);
         const token = generateToken({ participantId, roomId: payload.roomId });
         socket.join(payload.roomId);
         (socket as Socket & { participantId?: string; roomId?: string }).participantId = participantId;
