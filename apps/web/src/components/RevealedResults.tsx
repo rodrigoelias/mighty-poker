@@ -47,7 +47,7 @@ export function RevealedResults({ votes, participants }: Props) {
         {votes.map((vote) => {
           const participant = participants.find((p) => p.id === vote.participantId);
           return (
-            <BpkCard key={vote.participantId} padded>
+            <BpkCard key={vote.participantId} atomic={false} padded>
               <div className="flex items-center gap-3">
                 <BpkText
                   textStyle={TEXT_STYLES.heading2}

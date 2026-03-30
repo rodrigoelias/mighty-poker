@@ -62,7 +62,7 @@ export default function RoomPage() {
       <main className="flex-1 grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6 p-6 max-w-6xl mx-auto w-full">
         {/* Left column: participants */}
         <aside className="space-y-4">
-          <BpkCard padded>
+          <BpkCard atomic={false} padded>
             <ParticipantList
               participants={room.participants}
               currentRound={room.currentRound}
@@ -75,7 +75,7 @@ export default function RoomPage() {
         <section className="space-y-6">
           {/* Facilitator controls */}
           {isFacilitator && (
-            <BpkCard padded>
+            <BpkCard atomic={false} padded>
               <FacilitatorControls
                 roundStatus={room.currentRound.status}
                 onStart={() => roomId && startRound(roomId)}
@@ -87,7 +87,7 @@ export default function RoomPage() {
 
           {/* Voting cards */}
           {isVoting && (
-            <BpkCard padded>
+            <BpkCard atomic={false} padded>
               <CardDeck
                 deck={room.deck}
                 selectedValue={currentVote}
@@ -99,7 +99,7 @@ export default function RoomPage() {
 
           {/* Waiting state */}
           {room.currentRound.status === 'idle' && (
-            <BpkCard padded className="p-12 text-center">
+            <BpkCard atomic={false} padded className="p-12 text-center">
               <p className="text-4xl mb-4">🃏</p>
               <BpkText textStyle={TEXT_STYLES.heading4} tagName="h2" className="mb-2">
                 Waiting for facilitator to start voting
@@ -112,7 +112,7 @@ export default function RoomPage() {
 
           {/* Results */}
           {isRevealed && (
-            <BpkCard padded>
+            <BpkCard atomic={false} padded>
               <RevealedResults
                 votes={room.currentRound.votes}
                 participants={room.participants}
