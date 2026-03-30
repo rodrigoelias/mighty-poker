@@ -89,9 +89,7 @@ export function ParticipantList({ participants, currentRound, currentParticipant
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <BpkText tagName="span" className="truncate">
-                    {p.name}
-                  </BpkText>
+                  <BpkText tagName="span">{p.name}</BpkText>
                   {isMe && (
                     <BpkText
                       textStyle={TEXT_STYLES.caption}
