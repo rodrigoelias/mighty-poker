@@ -144,9 +144,10 @@ export default function JoinPage() {
           <BpkButton
             submit
             disabled={loading || !name.trim()}
+            loading={loading}
             fullWidth
           >
-            {loading ? 'Joining...' : 'Join Room'}
+            Join Room
           </BpkButton>
         </form>
       </div>

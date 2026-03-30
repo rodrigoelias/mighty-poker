@@ -73,15 +73,17 @@ vi.mock('@skyscanner/backpack-web/bpk-component-button', () => {
     children,
     submit,
     fullWidth,
+    loading,
     ...rest
   }: {
     children: React.ReactNode;
     submit?: boolean;
     fullWidth?: boolean;
     disabled?: boolean;
+    loading?: boolean;
     [key: string]: unknown;
   }) => (
-    <button type={submit ? 'submit' : 'button'} {...rest}>
+    <button type={submit ? 'submit' : 'button'} data-loading={loading ? 'true' : undefined} {...rest}>
       {children}
     </button>
   );
@@ -176,6 +178,12 @@ describe('HomePage', () => {
 
     const button = screen.getByRole('button', { name: 'Create Room' });
     expect(button).not.toBeDisabled();
+  });
+
+  it('button always shows "Create Room" text (no text swap)', () => {
+    render(<HomePage />);
+    expect(screen.getByRole('button', { name: 'Create Room' })).toBeInTheDocument();
+    expect(screen.queryByText('Creating...')).not.toBeInTheDocument();
   });
 
   it('does not show error banner when no error', () => {

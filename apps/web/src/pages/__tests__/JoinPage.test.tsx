@@ -88,6 +88,7 @@ vi.mock('@skyscanner/backpack-web/bpk-component-button', () => {
     submit,
     fullWidth: _fullWidth,
     type: _type,
+    loading,
     ...rest
   }: {
     children: React.ReactNode;
@@ -96,9 +97,10 @@ vi.mock('@skyscanner/backpack-web/bpk-component-button', () => {
     disabled?: boolean;
     type?: string;
     onClick?: () => void;
+    loading?: boolean;
     [key: string]: unknown;
   }) => (
-    <button type={submit ? 'submit' : 'button'} {...rest}>
+    <button type={submit ? 'submit' : 'button'} data-loading={loading ? 'true' : undefined} {...rest}>
       {children}
     </button>
   );
@@ -230,6 +232,19 @@ describe('JoinPage', () => {
 
     const button = screen.getByRole('button', { name: 'Join Room' });
     expect(button).not.toBeDisabled();
+  });
+
+  it('button always shows "Join Room" text (no text swap)', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+      status: 200,
+      json: () => Promise.resolve({ name: 'Test Room' }),
+    } as Response);
+
+    render(<JoinPage />);
+
+    const button = await screen.findByRole('button', { name: 'Join Room' });
+    expect(button).toBeInTheDocument();
+    expect(screen.queryByText('Joining...')).not.toBeInTheDocument();
   });
 
   it('navigates to home when "Create a new room" is clicked', async () => {

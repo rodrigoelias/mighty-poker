@@ -102,9 +102,10 @@ export default function HomePage() {
           <BpkButton
             submit
             disabled={loading || !name.trim() || !roomName.trim()}
+            loading={loading}
             fullWidth
           >
-            {loading ? 'Creating...' : 'Create Room'}
+            Create Room
           </BpkButton>
         </form>
       </div>
