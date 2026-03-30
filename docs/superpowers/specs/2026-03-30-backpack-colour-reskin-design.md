@@ -28,7 +28,6 @@
 | `coreEcoDay` | `rgb(15, 161, 169)` — teal | Avatar palette |
 | `surfaceHeroDay` | `rgb(0, 98, 227)` — sky blue | Room page hero banner |
 | `surfaceDefaultDay` | `rgb(255, 255, 255)` — white | Card surfaces |
-| `surfaceContrastDay` | `rgb(5, 32, 60)` — navy | Not directly used — BpkNavigationBar with `BAR_STYLES.onDark` provides the navy bar |
 | `surfaceLowContrastDay` | `rgb(245, 247, 250)` | BpkCheckboxCard unchecked hover (built-in) |
 | `surfaceSubtleDay` | `rgb(227, 240, 255)` — light blue | Current user's participant card background |
 | `surfaceHighlightDay` | `rgb(224, 228, 233)` — grey | Disabled voting cards |
@@ -54,7 +53,8 @@
 
 | Token | Value | Usage |
 |---|---|---|
-| `borderRadiusMd` | `0.75rem` | Form card containers, spade icon container |
+| `borderRadiusLg` | `1.5rem` | Form card containers (HomePage/JoinPage) |
+| `borderRadiusMd` | `0.75rem` | Spade icon container |
 | `borderRadiusFull` | `100%` | Avatars |
 
 ---
@@ -64,8 +64,9 @@
 **All pages** get a top navigation bar.
 
 - **Component:** `BpkNavigationBar` with `barStyle={BAR_STYLES.onDark}` (available in backpack-web v42)
+- **Required props:** `id="main-nav"`, `title="Mighty Poker"`
 - **Background:** `corePrimaryDay` (dark navy) — provided by the `onDark` bar style
-- **Content:** "Mighty Poker" app name (title prop) + spade icon (leadingButton), both rendered in white via the onDark style
+- **Content:** "Mighty Poker" app name (`title` prop) + spade icon (`leadingButton` prop), both rendered in white via the onDark style
 - **Height:** BpkNavigationBar default
 - **Position:** static (not sticky), sits above page content
 
@@ -88,7 +89,7 @@ Full-width banner below the nav bar on the room page.
   - Invite button: `BpkButton` `BUTTON_TYPES.primaryOnDark`
 - **Below the hero:** content area on `canvasContrastDay` with the sidebar/main grid layout preserved
 
-The `RoomHeader` component moves its content into this hero banner instead of being a plain text header.
+The existing `RoomHeader` component is **refactored in place** — its JSX changes from plain text on a white background to a `surfaceHeroDay` banner container. The component keeps its name, props, and file location. No new component is created.
 
 ---
 
@@ -116,12 +117,26 @@ Replace custom `<button>` elements with `BpkCheckboxCard`.
 
 ### States
 
-| State | Background | Text | Elevation | Extra |
-|---|---|---|---|---|
-| Default (unchecked) | `surfaceDefaultDay` (white) | `textPrimaryDay` | BpkCheckboxCard default shadow | No border (shadow only) |
-| Hover (unchecked) | `surfaceLowContrastDay` | `textPrimaryDay` | BpkCheckboxCard hover shadow | Built-in via component |
-| Selected (checked) | `corePrimaryDay` (navy) | `textOnDarkDay` (white) | Tinted navy shadow | `translateY(-6px)` + `scale(1.05)`, 200ms ease-in-out |
-| Disabled | `surfaceHighlightDay` (grey) | `textSecondaryDay` (not textDisabledDay) | None | `cursor: not-allowed` |
+**Built-in (no custom CSS needed):** BpkCheckboxCard with `variant=onCanvasDefault` handles these automatically:
+
+| State | Behaviour | Source |
+|---|---|---|
+| Default (unchecked) | White surface, shadow, no border | Component default |
+| Hover (unchecked) | `surfaceLowContrastDay` tint | Component CSS |
+| Selected (checked) | `corePrimaryDay` (navy) bg, white text, navy border | Component CSS |
+| Disabled | Grey surface, `cursor: not-allowed` | Component `disabled` prop |
+
+**Custom CSS overrides needed** for the selected card lift effect:
+
+| Override | Value | Why |
+|---|---|---|
+| `transform` | `translateY(-6px) scale(1.05)` | BpkCheckboxCard doesn't lift on select — this adds physical emphasis |
+| `box-shadow` | `0 8px 20px -4px rgba(5, 32, 60, 0.35)` | Tinted navy shadow instead of default grey |
+| `transition` | `all 200ms ease-in-out` | Smooth the lift animation |
+
+Target these via `[data-state="checked"]` CSS selector on the BpkCheckboxCard root.
+
+**Disabled text contrast fix:** BpkCheckboxCard's built-in disabled state uses `textDisabledDay` which fails WCAG on `surfaceHighlightDay`. Override with `textSecondaryDay` (`rgb(98, 105, 113)`) via CSS.
 
 **Why `textSecondaryDay` for disabled?** `textDisabledDay` (`rgba(0, 0, 0, 0.2)`) on `surfaceHighlightDay` (`rgb(224, 228, 233)`) has ~1.4:1 contrast ratio — fails WCAG AA (needs 3:1 minimum). `textSecondaryDay` (`rgb(98, 105, 113)`) passes.
 
@@ -140,13 +155,39 @@ Standard `boxShadowLg` looks disconnected on a navy card (grey shadow on blue). 
 - Section heading "Choose your estimate": `TEXT_STYLES.label1` (not caption — caption is too small for a section label)
 - "You picked X" confirmation: value in `textHeroDay` (`rgb(0, 98, 227)`)
 
+### Component Structure
+
+`BpkCheckboxCard` is a **compound component** with slots. Each voting card renders as:
+
+```tsx
+<BpkCheckboxCard.Root
+  checked={selectedValue === value}
+  onCheckedChange={(checked) => onSelect(checked ? value : null)}
+  disabled={disabled}
+  variant={CHECKBOX_CARD_VARIANTS.onCanvasDefault}
+  radius={CHECKBOX_CARD_RADIUS.rounded}
+  aria-label={ariaLabel}  // for "?" and coffee emoji cards
+  value={value}
+>
+  <BpkCheckboxCard.HiddenInput />
+  <BpkCheckboxCard.Content>
+    <BpkCheckboxCard.Label textStyle={TEXT_STYLES.heading4}>
+      {value}
+    </BpkCheckboxCard.Label>
+  </BpkCheckboxCard.Content>
+</BpkCheckboxCard.Root>
+```
+
+Note: `BpkCheckboxCard.Label` only accepts a **plain string** child. The `textStyle` prop overrides the default `heading-5` to `heading-4` for larger card values.
+
 ### Accessibility
 
 - Container: `role="radiogroup"`, `aria-label="Estimation values"`
-- Each card: `checked={selectedValue === value}`
-- Special cards: `aria-label="Pass"` on "?" card, `aria-label="Coffee break"` on coffee emoji
+- Each card: `checked={selectedValue === value}` on `BpkCheckboxCard.Root`
+- Special cards: `aria-label="Pass"` on "?" card, `aria-label="Coffee break"` on coffee emoji (on `BpkCheckboxCard.Root`)
 - Focus indicator: BpkCheckboxCard provides `0.125rem solid #0062e3` outline with offset (replaces Tailwind `focus-visible:ring-2`)
 - Transitions: 200ms ease-in-out (matches Backpack convention)
+- Form integration: `BpkCheckboxCard.HiddenInput` renders a visually hidden `<input type="checkbox">` for form submission
 
 ### Deselection
 
@@ -158,17 +199,19 @@ Tapping the already-selected card deselects it (clears the vote). The current be
 
 ### Avatars
 
-- **Size:** 48x48px (up from 32x32). `borderRadiusFull` for circular.
+- **Size:** 48x48px (up from 36x36). `borderRadiusFull` for circular.
 - **Initials:** Two letters (first + last name initial). `TEXT_STYLES.label1`, `textOnDarkDay`.
-- **Colour palette:** Full Backpack primitives, hashed by participant name for consistency:
-  - `corePrimaryDay` (navy)
-  - `coreAccentDay` (blue)
-  - `coreEcoDay` (teal)
-  - `statusSuccessSpotDay` (green)
-  - `statusDangerSpotDay` (berry)
-  - `statusWarningSpotDay` (amber)
-  - `surfaceHeroDay` (sky blue)
-  - Purple (`rgb(142, 71, 186)` — from Backpack primitives)
+- **Colour palette:** 8 visually distinct exported Backpack tokens, hashed by participant name for consistency:
+  - `corePrimaryDay` (navy `#05203C`)
+  - `coreAccentDay` (sky blue `#0062E3`)
+  - `coreEcoDay` (teal `#0FA1A9`)
+  - `statusSuccessSpotDay` (green `#0C838A`)
+  - `statusDangerSpotDay` (berry `#E70866`)
+  - `statusWarningSpotDay` (amber `#F55D42`)
+  - `textErrorDay` (berry — same as statusDangerSpotDay but semantically distinct; swap for a second berry shade or keep the existing `corePrimaryDay` dark variant)
+  - `textSecondaryDay` (grey `#626971` — provides a neutral option)
+
+  Note: The previous code used `surfaceHeroDay` which is visually identical to `coreAccentDay` (both `#0062E3`). Replaced with `textSecondaryDay` for a distinct 8th colour. Purple (`#8E47BA`) exists in Backpack primitives but is not exported as a token — avoid hardcoding it.
 - **Future:** When Jira images are available, avatar becomes `<img>` with same dimensions and `borderRadiusFull`, falling back to initials on load error.
 
 ### Participant Rows
@@ -202,7 +245,7 @@ Same `corePrimaryDay` nav bar as all pages.
 
 - Background: `surfaceDefaultDay` (white)
 - Shadow: `boxShadowLg` (replaces hardcoded `rgba(0,0,0,0.1)` shadows)
-- Border radius: `borderRadiusMd` (replaces hardcoded `1rem`)
+- Border radius: `borderRadiusLg` (replaces hardcoded `1rem`)
 
 ### Spade Icon Container
 
@@ -256,11 +299,30 @@ All hardcoded appearance values must be replaced with Backpack tokens:
 
 | Current Hardcoded Value | Replace With |
 |---|---|
-| `borderRadius: '1rem'` | `borderRadiusMd` (`0.75rem`) or `borderRadiusLg` (`1.5rem`) |
+| `borderRadius: '1rem'` | `borderRadiusLg` (`1.5rem`) — intentionally rounder than current; `borderRadiusMd` (`0.75rem`) is too tight for a form card |
 | `borderRadius: '0.75rem'` | `borderRadiusMd` |
 | `boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)...'` | `boxShadowLg` |
 | `boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'` | `boxShadowSm` |
 | `transition: 'all 150ms'` | `transition: 'all 200ms ease-in-out'` (Backpack convention) |
+
+---
+
+## Implementation Notes
+
+### BpkText `color` prop
+
+`BpkText` exports `TEXT_COLORS` with semantic values (`textHero`, `textOnDark`, `textPrimary`, etc.). Prefer `<BpkText color={TEXT_COLORS.textHero}>` over `style={{ color: textHeroDay }}`. This is the Backpack-native approach and avoids importing raw token values.
+
+### Relationship to previous migration spec
+
+This spec **supersedes** the visual treatment sections of `2026-03-30-backpack-migration-design.md`. Specifically:
+- CardDeck: previous spec said plain `<button>`, this spec says `BpkCheckboxCard`
+- Layout: previous spec had no nav bar or hero banner, this spec adds both
+- Infrastructure (dependencies, Vite config, font hosting, base CSS): **still governed by the previous spec** — not duplicated here
+
+### Migration order
+
+Defer to the implementation plan (writing-plans skill). The general principle: infrastructure first (previous spec), then leaf components, then pages, then the CardDeck (highest risk).
 
 ---
 
