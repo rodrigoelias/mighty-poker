@@ -1,5 +1,20 @@
 import React from 'react';
 import type { Participant, VotingRound } from '@mighty-poker/core';
+import BpkText, { TEXT_STYLES } from '@skyscanner/backpack-web/bpk-component-text';
+import BpkBadge, { BADGE_TYPES } from '@skyscanner/backpack-web/bpk-component-badge';
+import {
+  corePrimaryDay,
+  coreAccentDay,
+  coreEcoDay,
+  statusSuccessSpotDay,
+  statusWarningSpotDay,
+  statusDangerSpotDay,
+  surfaceHeroDay,
+  surfaceSubtleDay,
+  lineDay,
+  textOnDarkDay,
+  textHeroDay,
+} from '@skyscanner/bpk-foundations-web/tokens/base.es6';
 
 interface Props {
   participants: Participant[];
@@ -16,8 +31,14 @@ function initials(name: string): string {
 }
 
 const avatarColors = [
-  'bg-violet-500', 'bg-blue-500', 'bg-emerald-500', 'bg-amber-500',
-  'bg-rose-500', 'bg-cyan-500', 'bg-fuchsia-500', 'bg-lime-500',
+  corePrimaryDay,
+  coreAccentDay,
+  statusSuccessSpotDay,
+  statusWarningSpotDay,
+  statusDangerSpotDay,
+  coreEcoDay,
+  surfaceHeroDay,
+  surfaceSubtleDay,
 ];
 
 function avatarColor(name: string): string {
@@ -32,9 +53,9 @@ export function ParticipantList({ participants, currentRound, currentParticipant
 
   return (
     <div className="space-y-2">
-      <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
+      <BpkText textStyle={TEXT_STYLES.caption} tagName="h2">
         Participants ({participants.length})
-      </h2>
+      </BpkText>
       <ul className="space-y-2">
         {participants.map((p) => {
           const voted = currentRound.votes.some((v) => v.participantId === p.id);
@@ -45,44 +66,77 @@ export function ParticipantList({ participants, currentRound, currentParticipant
             <li
               key={p.id}
               className={`flex items-center gap-3 p-2 rounded-lg transition-colors ${
-                isMe ? 'bg-violet-50 ring-1 ring-violet-200' : 'bg-white'
-              } ${!p.connected ? 'opacity-50' : ''}`}
+                !p.connected ? 'opacity-50' : ''
+              }`}
+              style={
+                isMe
+                  ? {
+                      backgroundColor: surfaceSubtleDay,
+                      boxShadow: `inset 0 0 0 1px ${coreAccentDay}`,
+                    }
+                  : undefined
+              }
             >
               <div
-                className={`w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0 ${avatarColor(p.name)}`}
+                className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
+                style={{
+                  backgroundColor: avatarColor(p.name),
+                  color: textOnDarkDay,
+                }}
               >
                 {initials(p.name)}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <span className="font-medium text-gray-900 truncate">{p.name}</span>
+                  <BpkText tagName="span" className="truncate">
+                    {p.name}
+                  </BpkText>
                   {isMe && (
-                    <span className="text-xs text-violet-600 font-medium">(you)</span>
+                    <BpkText
+                      textStyle={TEXT_STYLES.caption}
+                      tagName="span"
+                      style={{ color: coreAccentDay }}
+                    >
+                      (you)
+                    </BpkText>
                   )}
                   {p.role === 'facilitator' && (
-                    <span className="text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-medium">
-                      facilitator
-                    </span>
+                    <BpkBadge type={BADGE_TYPES.brand}>facilitator</BpkBadge>
                   )}
                   {!p.connected && (
-                    <span className="text-xs text-gray-400">disconnected</span>
+                    <BpkBadge type={BADGE_TYPES.normal}>disconnected</BpkBadge>
                   )}
                 </div>
               </div>
               {isVoting && (
                 <div className="flex-shrink-0">
                   {voted ? (
-                    <div className="w-7 h-9 bg-violet-600 rounded-md flex items-center justify-center">
-                      <span className="text-white text-xs">✓</span>
-                    </div>
+                    <BpkBadge type={BADGE_TYPES.success}>&#10003;</BpkBadge>
                   ) : (
-                    <div className="w-7 h-9 border-2 border-dashed border-gray-300 rounded-md" />
+                    <div
+                      className="w-7 h-9 rounded-md"
+                      style={{
+                        border: `2px dashed ${lineDay}`,
+                      }}
+                    />
                   )}
                 </div>
               )}
               {isRevealed && vote && (
-                <div className="w-7 h-9 bg-white border-2 border-violet-300 rounded-md flex items-center justify-center">
-                  <span className="text-sm font-bold text-violet-700">{vote.value}</span>
+                <div
+                  className="w-7 h-9 rounded-md flex items-center justify-center"
+                  style={{
+                    backgroundColor: surfaceSubtleDay,
+                    border: `2px solid ${coreAccentDay}`,
+                  }}
+                >
+                  <BpkText
+                    textStyle={TEXT_STYLES.caption}
+                    tagName="span"
+                    style={{ color: textHeroDay, fontWeight: 'bold' }}
+                  >
+                    {vote.value}
+                  </BpkText>
                 </div>
               )}
             </li>
