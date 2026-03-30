@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import BpkButton from '@skyscanner/backpack-web/bpk-component-button';
 import { createRoom } from '../lib/socket.js';
 import { useRoomStore } from '../stores/room-store.js';
 
@@ -76,13 +77,13 @@ export default function HomePage() {
             </p>
           )}
 
-          <button
-            type="submit"
+          <BpkButton
+            submit
             disabled={loading || !name.trim() || !roomName.trim()}
-            className="w-full py-3 bg-violet-600 hover:bg-violet-700 disabled:bg-violet-300 text-white font-semibold rounded-xl shadow-sm transition-colors"
+            fullWidth
           >
             {loading ? 'Creating...' : 'Create Room'}
-          </button>
+          </BpkButton>
         </form>
       </div>
     </div>
