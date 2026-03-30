@@ -57,7 +57,7 @@ export function ParticipantList({ participants, currentRound, currentParticipant
       <BpkText textStyle={TEXT_STYLES.caption} tagName="h2">
         Participants ({participants.length})
       </BpkText>
-      <ul className="space-y-2">
+      <ul className="list-none space-y-2">
         {participants.map((p) => {
           const voted = currentRound.votes.some((v) => v.participantId === p.id);
           const isMe = p.id === currentParticipantId;
@@ -68,7 +68,6 @@ export function ParticipantList({ participants, currentRound, currentParticipant
               <BpkCard
                 atomic={false}
                 padded
-                className="flex items-center gap-3 transition-colors"
                 style={
                   isMe
                     ? {
@@ -78,6 +77,7 @@ export function ParticipantList({ participants, currentRound, currentParticipant
                     : undefined
                 }
               >
+                <div className="flex items-center gap-3">
               <div
                 className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
                 style={{
@@ -140,6 +140,7 @@ export function ParticipantList({ participants, currentRound, currentParticipant
                   </BpkText>
                 </div>
               )}
+                </div>
               </BpkCard>
             </li>
           );
