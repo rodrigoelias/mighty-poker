@@ -6,7 +6,8 @@ import BpkInput from '@skyscanner/backpack-web/bpk-component-input';
 import BpkLabel from '@skyscanner/backpack-web/bpk-component-label';
 import BpkInfoBanner, { ALERT_TYPES } from '@skyscanner/backpack-web/bpk-component-info-banner';
 import { BpkSpinner, SPINNER_TYPES } from '@skyscanner/backpack-web/bpk-component-spinner';
-import { canvasContrastDay, surfaceHeroDay, surfaceDefaultDay, textOnDarkDay } from '@skyscanner/bpk-foundations-web/tokens/base.es6';
+import { canvasContrastDay, surfaceHeroDay, surfaceDefaultDay, textOnDarkDay, boxShadowLg, boxShadowSm, borderRadiusLg, borderRadiusMd } from '@skyscanner/bpk-foundations-web/tokens/base.es6';
+import { AppNavBar } from '../components/AppNavBar.js';
 import { joinRoom } from '../lib/socket.js';
 import { useRoomStore } from '../stores/room-store.js';
 
@@ -72,96 +73,96 @@ export default function JoinPage() {
 
   if (checking) {
     return (
-      <div
-        className="min-h-screen flex items-center justify-center"
-        style={{ backgroundColor: canvasContrastDay }}
-      >
-        <BpkSpinner type={SPINNER_TYPES.primary} />
+      <div className="min-h-screen flex flex-col" style={{ backgroundColor: canvasContrastDay }}>
+        <AppNavBar />
+        <div className="flex-1 flex items-center justify-center">
+          <BpkSpinner type={SPINNER_TYPES.primary} />
+        </div>
       </div>
     );
   }
 
   if (notFound) {
     return (
-      <div
-        className="min-h-screen flex items-center justify-center p-4"
-        style={{ backgroundColor: canvasContrastDay }}
-      >
-        <div className="p-8 max-w-sm w-full" style={{ backgroundColor: surfaceDefaultDay, borderRadius: '1rem', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1)', textAlign: 'center' }}>
-          <p className="mb-4" style={{ fontSize: '2.25rem' }}>😕</p>
-          <BpkText textStyle={TEXT_STYLES.heading3} tagName="h2">
-            Room not found
-          </BpkText>
-          <BpkText textStyle={TEXT_STYLES.bodyDefault} tagName="p" className="mb-6 mt-2">
-            The invite link may be invalid or the room has expired.
-          </BpkText>
-          <BpkButton
-            type={BUTTON_TYPES.secondary}
-            onClick={() => navigate('/')}
-          >
-            Create a new room
-          </BpkButton>
+      <div className="min-h-screen flex flex-col" style={{ backgroundColor: canvasContrastDay }}>
+        <AppNavBar />
+        <div className="flex-1 flex items-center justify-center p-4">
+          <div className="p-8 max-w-sm w-full" style={{ backgroundColor: surfaceDefaultDay, borderRadius: borderRadiusLg, boxShadow: boxShadowLg, textAlign: 'center' }}>
+            <p className="mb-4" style={{ fontSize: '2.25rem' }}>😕</p>
+            <BpkText textStyle={TEXT_STYLES.heading3} tagName="h2">
+              Room not found
+            </BpkText>
+            <BpkText textStyle={TEXT_STYLES.bodyDefault} tagName="p" className="mb-6 mt-2">
+              The invite link may be invalid or the room has expired.
+            </BpkText>
+            <BpkButton
+              type={BUTTON_TYPES.secondary}
+              onClick={() => navigate('/')}
+            >
+              Create a new room
+            </BpkButton>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center p-4"
-      style={{ backgroundColor: canvasContrastDay }}
-    >
-      <div className="p-8 w-full max-w-md" style={{ backgroundColor: surfaceDefaultDay, borderRadius: '1rem', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1)' }}>
-        <div className="text-center mb-8">
-          <div
-            className="w-14 h-14 flex items-center justify-center mx-auto mb-4"
-            style={{ backgroundColor: surfaceHeroDay, borderRadius: '1rem', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}
-          >
-            <span style={{ color: textOnDarkDay, fontSize: '1.5rem' }}>&#9824;</span>
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: canvasContrastDay }}>
+      <AppNavBar />
+      <div className="flex-1 flex items-center justify-center p-4">
+        <div className="p-8 w-full max-w-md" style={{ backgroundColor: surfaceDefaultDay, borderRadius: borderRadiusLg, boxShadow: boxShadowLg }}>
+          <div className="text-center mb-8">
+            <div
+              className="w-14 h-14 flex items-center justify-center mx-auto mb-4"
+              style={{ backgroundColor: surfaceHeroDay, borderRadius: borderRadiusMd, boxShadow: boxShadowSm }}
+            >
+              <span style={{ color: textOnDarkDay, fontSize: '1.5rem' }}>&#9824;</span>
+            </div>
+            <BpkText textStyle={TEXT_STYLES.heading3} tagName="h1">
+              Join &ldquo;{roomName}&rdquo;
+            </BpkText>
+            <BpkText textStyle={TEXT_STYLES.bodyDefault} tagName="p" className="mt-1">
+              Enter your name to join the session
+            </BpkText>
           </div>
-          <BpkText textStyle={TEXT_STYLES.heading3} tagName="h1">
-            Join &ldquo;{roomName}&rdquo;
-          </BpkText>
-          <BpkText textStyle={TEXT_STYLES.bodyDefault} tagName="p" className="mt-1">
-            Enter your name to join the session
-          </BpkText>
+
+          <form onSubmit={handleJoin} className="space-y-4">
+            <div>
+              <BpkLabel htmlFor="name" className="mb-1">
+                Your name
+              </BpkLabel>
+              <BpkInput
+                id="name"
+                name="name"
+                type="text"
+                value={name}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
+                onBlur={() => handleBlur('name')}
+                valid={getValid('name', name)}
+                placeholder="Bob"
+                required
+              />
+            </div>
+
+            {error && (
+              <BpkInfoBanner
+                type={ALERT_TYPES.ERROR}
+                message={error}
+                role="alert"
+              />
+            )}
+
+            <BpkButton
+              submit
+              disabled={loading || !name.trim()}
+              loading={loading}
+              fullWidth
+            >
+              Join Room
+            </BpkButton>
+          </form>
         </div>
-
-        <form onSubmit={handleJoin} className="space-y-4">
-          <div>
-            <BpkLabel htmlFor="name" className="mb-1">
-              Your name
-            </BpkLabel>
-            <BpkInput
-              id="name"
-              name="name"
-              type="text"
-              value={name}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
-              onBlur={() => handleBlur('name')}
-              valid={getValid('name', name)}
-              placeholder="Bob"
-              required
-            />
-          </div>
-
-          {error && (
-            <BpkInfoBanner
-              type={ALERT_TYPES.ERROR}
-              message={error}
-              role="alert"
-            />
-          )}
-
-          <BpkButton
-            submit
-            disabled={loading || !name.trim()}
-            loading={loading}
-            fullWidth
-          >
-            Join Room
-          </BpkButton>
-        </form>
       </div>
     </div>
   );

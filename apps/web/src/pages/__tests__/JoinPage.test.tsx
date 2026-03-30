@@ -23,6 +23,11 @@ vi.mock('../../stores/room-store.js', () => ({
     }),
 }));
 
+// Mock AppNavBar
+vi.mock('../../components/AppNavBar', () => ({
+  AppNavBar: () => <nav data-testid="app-nav-bar">Mighty Poker</nav>,
+}));
+
 // Mock Backpack components with minimal implementations
 vi.mock('@skyscanner/backpack-web/bpk-component-text', () => {
   const TEXT_STYLES = {
@@ -149,6 +154,10 @@ vi.mock('@skyscanner/bpk-foundations-web/tokens/base.es6', () => ({
   surfaceHeroDay: 'rgb(0, 98, 227)',
   surfaceDefaultDay: 'rgb(255, 255, 255)',
   textOnDarkDay: 'rgb(255, 255, 255)',
+  boxShadowLg: '0 10px 15px -3px rgba(0,0,0,0.1)',
+  boxShadowSm: '0 4px 6px -1px rgba(0,0,0,0.1)',
+  borderRadiusLg: '1rem',
+  borderRadiusMd: '0.75rem',
 }));
 
 describe('JoinPage', () => {
@@ -156,6 +165,16 @@ describe('JoinPage', () => {
     cleanup();
     vi.clearAllMocks();
     vi.restoreAllMocks();
+  });
+
+  it('renders the AppNavBar', () => {
+    // fetch never resolves, so checking stays true
+    vi.spyOn(globalThis, 'fetch').mockImplementation(
+      () => new Promise(() => {}),
+    );
+
+    render(<JoinPage />);
+    expect(screen.getByTestId('app-nav-bar')).toBeInTheDocument();
   });
 
   it('shows spinner while loading room info', () => {
