@@ -1,4 +1,13 @@
 import React from 'react';
+import BpkText, { TEXT_STYLES } from '@skyscanner/backpack-web/bpk-component-text';
+import {
+  corePrimaryDay,
+  surfaceDefaultDay,
+  surfaceHighlightDay,
+  lineDay,
+  textPrimaryDay,
+  textDisabledDay,
+} from '@skyscanner/bpk-foundations-web/tokens/base.es6';
 
 interface Props {
   deck: string[];
@@ -7,12 +16,39 @@ interface Props {
   onSelect: (value: string) => void;
 }
 
+const defaultStyle: React.CSSProperties = {
+  backgroundColor: surfaceDefaultDay,
+  borderColor: lineDay,
+  borderWidth: 2,
+  borderStyle: 'solid',
+  color: textPrimaryDay,
+};
+
+const selectedStyle: React.CSSProperties = {
+  backgroundColor: corePrimaryDay,
+  color: '#fff',
+  transform: 'translateY(-4px)',
+  boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
+};
+
+const disabledStyle: React.CSSProperties = {
+  backgroundColor: surfaceHighlightDay,
+  color: textDisabledDay,
+  cursor: 'not-allowed',
+};
+
+function getButtonStyle(isSelected: boolean, isDisabled: boolean): React.CSSProperties {
+  if (isSelected) return selectedStyle;
+  if (isDisabled) return disabledStyle;
+  return defaultStyle;
+}
+
 export function CardDeck({ deck, selectedValue, disabled, onSelect }: Props) {
   return (
     <div className="space-y-3">
-      <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider text-center">
+      <BpkText textStyle={TEXT_STYLES.caption} tagName="h2" className="uppercase tracking-wider text-center">
         Choose your estimate
-      </h2>
+      </BpkText>
       <div className="flex flex-wrap gap-3 justify-center">
         {deck.map((value) => {
           const isSelected = selectedValue === value;
@@ -22,17 +58,8 @@ export function CardDeck({ deck, selectedValue, disabled, onSelect }: Props) {
               onClick={() => onSelect(value)}
               disabled={disabled}
               aria-pressed={isSelected}
-              className={`
-                w-14 h-20 rounded-xl text-lg font-bold transition-all duration-150 select-none
-                focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500
-                ${
-                  isSelected
-                    ? 'bg-violet-600 text-white shadow-lg scale-105 -translate-y-1'
-                    : disabled
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : 'bg-white text-gray-800 border-2 border-gray-200 hover:border-violet-400 hover:shadow-md hover:-translate-y-0.5 cursor-pointer'
-                }
-              `}
+              style={getButtonStyle(isSelected, disabled)}
+              className="w-14 h-20 rounded-xl text-lg font-bold transition-all duration-150 select-none focus:outline-none focus-visible:ring-2"
             >
               {value}
             </button>
@@ -40,9 +67,13 @@ export function CardDeck({ deck, selectedValue, disabled, onSelect }: Props) {
         })}
       </div>
       {selectedValue && (
-        <p className="text-center text-sm text-gray-500">
-          You selected <strong className="text-violet-700">{selectedValue}</strong> — click another card to change
-        </p>
+        <BpkText textStyle={TEXT_STYLES.caption} tagName="p" className="text-center">
+          You selected{' '}
+          <BpkText textStyle={TEXT_STYLES.caption} tagName="strong" style={{ color: corePrimaryDay }}>
+            {selectedValue}
+          </BpkText>
+          {' '}— click another card to change
+        </BpkText>
       )}
     </div>
   );
