@@ -17,7 +17,16 @@ interface Props {
   onSelect: (value: string) => void;
 }
 
+const sharedButtonStyle: React.CSSProperties = {
+  borderRadius: '0.75rem',
+  fontSize: '1.125rem',
+  fontWeight: 'bold',
+  transition: 'all 150ms',
+  outline: 'none',
+};
+
 const defaultStyle: React.CSSProperties = {
+  ...sharedButtonStyle,
   backgroundColor: surfaceDefaultDay,
   borderColor: lineDay,
   borderWidth: 2,
@@ -26,6 +35,7 @@ const defaultStyle: React.CSSProperties = {
 };
 
 const selectedStyle: React.CSSProperties = {
+  ...sharedButtonStyle,
   backgroundColor: coreAccentDay,
   color: textOnDarkDay,
   transform: 'translateY(-4px)',
@@ -33,6 +43,7 @@ const selectedStyle: React.CSSProperties = {
 };
 
 const disabledStyle: React.CSSProperties = {
+  ...sharedButtonStyle,
   backgroundColor: surfaceHighlightDay,
   color: textDisabledDay,
   cursor: 'not-allowed',
@@ -47,7 +58,7 @@ function getButtonStyle(isSelected: boolean, isDisabled: boolean): React.CSSProp
 export function CardDeck({ deck, selectedValue, disabled, onSelect }: Props) {
   return (
     <div className="space-y-3">
-      <BpkText textStyle={TEXT_STYLES.caption} tagName="h2" className="uppercase tracking-wider text-center">
+      <BpkText textStyle={TEXT_STYLES.caption} tagName="h2" className="" style={{ textTransform: 'uppercase', letterSpacing: '0.05em', textAlign: 'center' }}>
         Choose your estimate
       </BpkText>
       <div className="flex flex-wrap gap-3 justify-center">
@@ -60,7 +71,7 @@ export function CardDeck({ deck, selectedValue, disabled, onSelect }: Props) {
               disabled={disabled}
               aria-pressed={isSelected}
               style={getButtonStyle(isSelected, disabled)}
-              className="w-14 h-20 rounded-xl text-lg font-bold transition-all duration-150 select-none focus:outline-none focus-visible:ring-2"
+              className="w-14 h-20 select-none focus:outline-none focus-visible:ring-2"
             >
               {value}
             </button>

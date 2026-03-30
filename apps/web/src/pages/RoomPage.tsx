@@ -99,8 +99,8 @@ export default function RoomPage() {
 
           {/* Waiting state */}
           {room.currentRound.status === 'idle' && (
-            <BpkCard atomic={false} padded className="p-12 text-center">
-              <p className="text-4xl mb-4">🃏</p>
+            <BpkCard atomic={false} padded className="p-12" style={{ textAlign: 'center' }}>
+              <p className="mb-4" style={{ fontSize: '2.25rem' }}>🃏</p>
               <BpkText textStyle={TEXT_STYLES.heading4} tagName="h2" className="mb-2">
                 Waiting for facilitator to start voting
               </BpkText>

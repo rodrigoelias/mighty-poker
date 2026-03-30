@@ -55,13 +55,13 @@ export default function HomePage() {
       className="min-h-screen flex items-center justify-center p-4"
       style={{ backgroundColor: canvasContrastDay }}
     >
-      <div className="rounded-2xl shadow-lg p-8 w-full max-w-md" style={{ backgroundColor: surfaceDefaultDay }}>
+      <div className="p-8 w-full max-w-md" style={{ backgroundColor: surfaceDefaultDay, borderRadius: '1rem', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1)' }}>
         <div className="text-center mb-8">
           <div
-            className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-md"
-            style={{ backgroundColor: surfaceHeroDay }}
+            className="w-14 h-14 flex items-center justify-center mx-auto mb-4"
+            style={{ backgroundColor: surfaceHeroDay, borderRadius: '1rem', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}
           >
-            <span className="text-2xl" style={{ color: textOnDarkDay }}>&#9824;</span>
+            <span style={{ color: textOnDarkDay, fontSize: '1.5rem' }}>&#9824;</span>
           </div>
           <BpkText textStyle={TEXT_STYLES.heading2} tagName="h1">
             Mighty Poker

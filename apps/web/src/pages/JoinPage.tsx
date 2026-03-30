@@ -87,8 +87,8 @@ export default function JoinPage() {
         className="min-h-screen flex items-center justify-center p-4"
         style={{ backgroundColor: canvasContrastDay }}
       >
-        <div className="rounded-2xl shadow-lg p-8 text-center max-w-sm w-full" style={{ backgroundColor: surfaceDefaultDay }}>
-          <p className="text-4xl mb-4">😕</p>
+        <div className="p-8 max-w-sm w-full" style={{ backgroundColor: surfaceDefaultDay, borderRadius: '1rem', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1)', textAlign: 'center' }}>
+          <p className="mb-4" style={{ fontSize: '2.25rem' }}>😕</p>
           <BpkText textStyle={TEXT_STYLES.heading3} tagName="h2">
             Room not found
           </BpkText>
@@ -111,13 +111,13 @@ export default function JoinPage() {
       className="min-h-screen flex items-center justify-center p-4"
       style={{ backgroundColor: canvasContrastDay }}
     >
-      <div className="rounded-2xl shadow-lg p-8 w-full max-w-md" style={{ backgroundColor: surfaceDefaultDay }}>
+      <div className="p-8 w-full max-w-md" style={{ backgroundColor: surfaceDefaultDay, borderRadius: '1rem', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1)' }}>
         <div className="text-center mb-8">
           <div
-            className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-md"
-            style={{ backgroundColor: surfaceHeroDay }}
+            className="w-14 h-14 flex items-center justify-center mx-auto mb-4"
+            style={{ backgroundColor: surfaceHeroDay, borderRadius: '1rem', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}
           >
-            <span className="text-2xl" style={{ color: textOnDarkDay }}>&#9824;</span>
+            <span style={{ color: textOnDarkDay, fontSize: '1.5rem' }}>&#9824;</span>
           </div>
           <BpkText textStyle={TEXT_STYLES.heading3} tagName="h1">
             Join &ldquo;{roomName}&rdquo;

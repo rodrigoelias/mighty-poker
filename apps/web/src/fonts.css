@@ -19,3 +19,7 @@
   font-display: swap;
   src: url('/fonts/nunito-sans-700.woff2') format('woff2');
 }
+
+:root {
+  --bpk-base-font-stack: 'Nunito Sans', sans-serif;
+}
