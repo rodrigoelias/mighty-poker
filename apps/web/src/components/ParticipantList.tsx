@@ -79,10 +79,13 @@ export function ParticipantList({ participants, currentRound, currentParticipant
               >
                 <div className="flex items-center gap-3">
               <div
-                className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
+                className="w-9 h-9 flex items-center justify-center flex-shrink-0"
                 style={{
                   backgroundColor: avatarColor(p.name),
                   color: textOnDarkDay,
+                  borderRadius: '50%',
+                  fontSize: '0.875rem',
+                  fontWeight: 'bold',
                 }}
               >
                 {initials(p.name)}
@@ -113,9 +116,10 @@ export function ParticipantList({ participants, currentRound, currentParticipant
                     <BpkBadge type={BADGE_TYPES.success}>&#10003;</BpkBadge>
                   ) : (
                     <div
-                      className="w-7 h-9 rounded-md"
+                      className="w-7 h-9"
                       style={{
                         border: `2px dashed ${lineDay}`,
+                        borderRadius: '0.375rem',
                       }}
                     />
                   )}
@@ -123,10 +127,11 @@ export function ParticipantList({ participants, currentRound, currentParticipant
               )}
               {isRevealed && vote && (
                 <div
-                  className="w-7 h-9 rounded-md flex items-center justify-center"
+                  className="w-7 h-9 flex items-center justify-center"
                   style={{
                     backgroundColor: surfaceSubtleDay,
                     border: `2px solid ${coreAccentDay}`,
+                    borderRadius: '0.375rem',
                   }}
                 >
                   <BpkText

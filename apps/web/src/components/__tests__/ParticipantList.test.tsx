@@ -242,7 +242,7 @@ describe('ParticipantList', () => {
     );
 
     // The dashed border placeholder should be rendered
-    const placeholder = container.querySelector('.w-7.h-9.rounded-md');
+    const placeholder = container.querySelector('.w-7.h-9');
     expect(placeholder).toBeInTheDocument();
   });
 
@@ -292,7 +292,7 @@ describe('ParticipantList', () => {
     const { container } = render(
       <ParticipantList participants={participants} currentRound={makeRound()} currentParticipantId={null} />,
     );
-    const avatars = container.querySelectorAll('.w-9.h-9.rounded-full');
+    const avatars = container.querySelectorAll('.w-9.h-9');
     expect(avatars).toHaveLength(8);
   });
 
@@ -303,7 +303,7 @@ describe('ParticipantList', () => {
     const { container } = render(
       <ParticipantList participants={participants} currentRound={makeRound()} currentParticipantId={null} />,
     );
-    const avatars = container.querySelectorAll('.w-9.h-9.rounded-full');
+    const avatars = container.querySelectorAll('.w-9.h-9');
     const colors = Array.from(avatars).map((el) => (el as HTMLElement).style.backgroundColor);
     expect(colors).toContain('rgb(5, 32, 60)');
   });
@@ -323,7 +323,7 @@ describe('ParticipantList', () => {
     // No checkmark badges or dashed placeholders
     const badges = screen.queryAllByTestId('bpk-badge');
     expect(badges).toHaveLength(0);
-    const placeholder = container.querySelector('.w-7.h-9.rounded-md');
+    const placeholder = container.querySelector('.w-7.h-9');
     expect(placeholder).not.toBeInTheDocument();
   });
 });
