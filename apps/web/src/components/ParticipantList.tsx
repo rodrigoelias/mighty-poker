@@ -6,6 +6,7 @@ import BpkCard from '@skyscanner/backpack-web/bpk-component-card';
 import {
   coreAccentDay,
   coreEcoDay,
+  corePrimaryDay,
   statusSuccessSpotDay,
   statusWarningSpotDay,
   statusDangerSpotDay,
@@ -38,6 +39,7 @@ const avatarColors = [
   coreEcoDay,
   surfaceHeroDay,
   surfaceSubtleDay,
+  corePrimaryDay,
 ];
 
 function avatarColor(name: string): string {

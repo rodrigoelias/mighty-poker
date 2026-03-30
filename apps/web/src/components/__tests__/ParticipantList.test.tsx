@@ -68,6 +68,7 @@ vi.mock('@skyscanner/bpk-foundations-web/tokens/base.es6', () => ({
   statusDangerSpotDay: 'rgb(231, 8, 102)',
   surfaceHeroDay: 'rgb(0, 98, 227)',
   surfaceSubtleDay: 'rgb(227, 240, 255)',
+  corePrimaryDay: 'rgb(5, 32, 60)',
   lineDay: 'rgb(193, 199, 207)',
   textOnDarkDay: 'rgb(255, 255, 255)',
   textHeroDay: 'rgb(0, 98, 227)',
@@ -282,6 +283,29 @@ describe('ParticipantList', () => {
     expect(cards).toHaveLength(2);
     expect(cards[0]).toHaveAttribute('data-atomic', 'false');
     expect(cards[0]).toHaveAttribute('data-padded', 'true');
+  });
+
+  it('uses an 8-color avatar palette', () => {
+    const participants = Array.from({ length: 8 }, (_, i) =>
+      makeParticipant({ id: `p${i}`, name: `User ${i}` }),
+    );
+    const { container } = render(
+      <ParticipantList participants={participants} currentRound={makeRound()} currentParticipantId={null} />,
+    );
+    const avatars = container.querySelectorAll('.w-9.h-9.rounded-full');
+    expect(avatars).toHaveLength(8);
+  });
+
+  it('includes corePrimaryDay in avatar color palette', () => {
+    const participants = Array.from({ length: 20 }, (_, i) =>
+      makeParticipant({ id: `p${i}`, name: String(i) }),
+    );
+    const { container } = render(
+      <ParticipantList participants={participants} currentRound={makeRound()} currentParticipantId={null} />,
+    );
+    const avatars = container.querySelectorAll('.w-9.h-9.rounded-full');
+    const colors = Array.from(avatars).map((el) => (el as HTMLElement).style.backgroundColor);
+    expect(colors).toContain('rgb(5, 32, 60)');
   });
 
   it('does not show vote indicators during idle status', () => {
