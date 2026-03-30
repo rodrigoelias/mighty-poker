@@ -145,6 +145,8 @@ vi.mock('@skyscanner/backpack-web/bpk-component-spinner', () => {
 vi.mock('@skyscanner/bpk-foundations-web/tokens/base.es6', () => ({
   canvasDay: 'rgb(255, 255, 255)',
   corePrimaryDay: 'rgb(5, 32, 60)',
+  surfaceDefaultDay: 'rgb(255, 255, 255)',
+  textOnDarkDay: 'rgb(255, 255, 255)',
 }));
 
 describe('JoinPage', () => {

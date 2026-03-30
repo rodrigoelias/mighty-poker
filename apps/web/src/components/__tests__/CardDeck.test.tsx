@@ -33,6 +33,7 @@ vi.mock('@skyscanner/bpk-foundations-web/tokens/base.es6', () => ({
   lineDay: 'rgb(193, 199, 207)',
   textPrimaryDay: 'rgb(22, 22, 22)',
   textDisabledDay: 'rgba(0, 0, 0, 0.2)',
+  textOnDarkDay: 'rgb(255, 255, 255)',
 }));
 
 const defaultProps = {
@@ -112,7 +113,7 @@ describe('CardDeck', () => {
   it('applies selected style to selected button', () => {
     render(<CardDeck {...defaultProps} selectedValue="2" />);
     const selectedButton = screen.getAllByRole('button').find((b) => b.textContent === '2');
-    expect(selectedButton).toHaveStyle({ backgroundColor: 'rgb(5, 32, 60)', color: '#fff' });
+    expect(selectedButton).toHaveStyle({ backgroundColor: 'rgb(5, 32, 60)', color: 'rgb(255, 255, 255)' });
   });
 
   it('applies disabled style to disabled buttons', () => {

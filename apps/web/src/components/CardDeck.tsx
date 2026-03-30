@@ -7,6 +7,7 @@ import {
   lineDay,
   textPrimaryDay,
   textDisabledDay,
+  textOnDarkDay,
 } from '@skyscanner/bpk-foundations-web/tokens/base.es6';
 
 interface Props {
@@ -26,7 +27,7 @@ const defaultStyle: React.CSSProperties = {
 
 const selectedStyle: React.CSSProperties = {
   backgroundColor: corePrimaryDay,
-  color: '#fff',
+  color: textOnDarkDay,
   transform: 'translateY(-4px)',
   boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
 };

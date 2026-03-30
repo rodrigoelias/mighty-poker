@@ -5,7 +5,7 @@ import BpkText, { TEXT_STYLES } from '@skyscanner/backpack-web/bpk-component-tex
 import BpkInput from '@skyscanner/backpack-web/bpk-component-input';
 import BpkLabel from '@skyscanner/backpack-web/bpk-component-label';
 import BpkInfoBanner, { ALERT_TYPES } from '@skyscanner/backpack-web/bpk-component-info-banner';
-import { canvasDay, corePrimaryDay } from '@skyscanner/bpk-foundations-web/tokens/base.es6';
+import { canvasDay, corePrimaryDay, surfaceDefaultDay, textOnDarkDay } from '@skyscanner/bpk-foundations-web/tokens/base.es6';
 import { createRoom } from '../lib/socket.js';
 import { useRoomStore } from '../stores/room-store.js';
 
@@ -23,16 +23,21 @@ export default function HomePage() {
     if (!name.trim() || !roomName.trim()) return;
     setLoading(true);
     setError('');
-    const result = await createRoom(roomName.trim(), name.trim());
-    setLoading(false);
-    if (result.error) {
-      setError(result.error);
-      return;
+    try {
+      const result = await createRoom(roomName.trim(), name.trim());
+      if (result.error) {
+        setError(result.error);
+        return;
+      }
+      setIdentity(result.room.participants[0].id, result.roomId, result.token);
+      setRoom(result.room);
+      localStorage.setItem(`room-token-${result.roomId}`, result.token);
+      navigate(`/room/${result.roomId}`);
+    } catch {
+      setError('Connection timed out. Please try again.');
+    } finally {
+      setLoading(false);
     }
-    setIdentity(result.room.participants[0].id, result.roomId, result.token);
-    setRoom(result.room);
-    localStorage.setItem(`room-token-${result.roomId}`, result.token);
-    navigate(`/room/${result.roomId}`);
   }
 
   return (
@@ -40,13 +45,13 @@ export default function HomePage() {
       className="min-h-screen flex items-center justify-center p-4"
       style={{ backgroundColor: canvasDay }}
     >
-      <div className="rounded-2xl shadow-lg p-8 w-full max-w-md" style={{ backgroundColor: '#fff' }}>
+      <div className="rounded-2xl shadow-lg p-8 w-full max-w-md" style={{ backgroundColor: surfaceDefaultDay }}>
         <div className="text-center mb-8">
           <div
             className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-md"
             style={{ backgroundColor: corePrimaryDay }}
           >
-            <span className="text-2xl text-white">&#9824;</span>
+            <span className="text-2xl" style={{ color: textOnDarkDay }}>&#9824;</span>
           </div>
           <BpkText textStyle={TEXT_STYLES.heading2} tagName="h1">
             Mighty Poker
