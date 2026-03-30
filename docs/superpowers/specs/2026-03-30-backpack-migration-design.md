@@ -71,8 +71,8 @@ Create a throwaway branch and test ONE component (`BpkButtonV2` replacing a `<bu
 **Keep:**
 - `tailwindcss`, `postcss`, `autoprefixer` — Layout utilities only
 
-**Potentially needed:**
-- `vite-css-modules` — If Backpack's non-`.module.scss` imports fail in Vite (validate during spike)
+**Potentially needed (resolve during spike — update this section with result):**
+- `vite-css-modules` — Only if Backpack's non-`.module.scss` imports fail in Vite
 
 ### Font (Self-Hosted)
 
@@ -271,33 +271,47 @@ import { BpkSpinner, SPINNER_TYPES } from '@skyscanner/backpack-web/bpk-componen
 
 Migrate leaf nodes first, then work inward. Each phase produces a green test suite before proceeding.
 
-### Phase 0 — Infrastructure (no visual changes)
-1. Run spike branch to validate React 19 + Backpack + Vite compatibility
-2. Fix pre-existing bugs (duplicate listeners, vote desync, promise timeouts)
-3. Install Backpack dependencies + `sass-embedded`
-4. Download and self-host Nunito Sans woff2 files
-5. Update `tailwind.config.js` (disable preflight only)
-6. Update `vite.config.ts` (add SCSS preprocessor options)
-7. Update `main.tsx` (import `bpk-stylesheets/base.css` before `index.css`)
-8. Update `index.css` (remove `@tailwind base`)
-9. Run full test suite — fix any visual regressions from CSS reset swap
+### Phase 0a — Spike (go/no-go gate, throwaway branch)
+1. Create throwaway branch, install Backpack with `--legacy-peer-deps`
+2. Replace one `<button>` in `HomePage.tsx` with `BpkButtonV2`
+3. Verify `bpk-stylesheets/base.css` imports correctly in Vite
+4. Verify component renders without type errors
+5. If React 19 type conflicts surface: decide (a) pin `@types/react` to 18.x, (b) downgrade to React 18, or (c) `@ts-expect-error` pragmas
+6. Document go/no-go result — if no-go, stop here
+
+**Gate: Do not proceed to Phase 0c until spike passes.**
+
+### Phase 0b — Bug Fixes (independent, can start in parallel with 0a)
+7. Fix duplicate `room:updated` listeners in RoomPage (remove redundant handler)
+8. Fix vote desync race (add `pendingVote` optimistic state to Zustand store)
+9. Fix socket emit promises (add 5s timeout)
+10. Fix `getSocket` re-creation race (check `socket` existence, not `socket?.connected`)
+
+### Phase 0c — Infrastructure (after spike passes, no visual changes)
+11. Install Backpack dependencies + `sass-embedded`
+12. Download and self-host Nunito Sans woff2 files
+13. Update `tailwind.config.js` (disable preflight only)
+14. Update `vite.config.ts` (add SCSS preprocessor options)
+15. Update `main.tsx` (import `bpk-stylesheets/base.css` before `index.css`)
+16. Update `index.css` (remove `@tailwind base`)
+17. Run full test suite — fix any visual regressions from CSS reset swap
 
 ### Phase 1 — Leaf Components (no children that need migration)
-10. `ConnectionBanner` → `BpkInfoBanner` + debounce logic
-11. `FacilitatorControls` → `BpkButtonV2` (3 buttons, straightforward swap)
+18. `ConnectionBanner` → `BpkInfoBanner` + debounce logic
+19. `FacilitatorControls` → `BpkButtonV2` (3 buttons, straightforward swap)
 
 ### Phase 2 — Form Pages (self-contained)
-12. `HomePage` → `BpkText` + `BpkLabel`/`BpkInput` + `BpkButtonV2` + `BpkInfoBanner`
-13. `JoinPage` → same pattern + `BpkSpinner`
+20. `HomePage` → `BpkText` + `BpkLabel`/`BpkInput` + `BpkButtonV2` + `BpkInfoBanner`
+21. `JoinPage` → same pattern + `BpkSpinner`
 
 ### Phase 3 — Complex Components
-14. `RoomHeader` → `BpkText` + `BpkBadge` + `BpkButtonV2` (link)
-15. `CardDeck` → Backpack token-styled `<button>` elements (highest risk — test thoroughly)
-16. `ParticipantList` → `BpkCard` + `BpkBadge` + `BpkText` + custom avatar
-17. `RevealedResults` → `BpkCard` + `BpkBadge` + `BpkText` + `BpkInfoBanner`
+22. `RoomHeader` → `BpkText` + `BpkBadge` + `BpkButtonV2` (link)
+23. `CardDeck` → Backpack token-styled `<button>` elements (highest risk — test thoroughly)
+24. `ParticipantList` → `BpkCard` + `BpkBadge` + `BpkText` + custom avatar
+25. `RevealedResults` → `BpkCard` + `BpkBadge` + `BpkText` + `BpkInfoBanner`
 
 ### Phase 4 — Container Page
-18. `RoomPage` → update wrapper/layout classes, verify all children compose correctly
+26. `RoomPage` → update wrapper/layout classes, verify all children compose correctly
 
 ---
 
@@ -344,6 +358,8 @@ Migrate leaf nodes first, then work inward. Each phase produces a green test sui
 Existing role-based queries (`getByRole`, `getByText`) should pass unchanged since Backpack components maintain standard HTML semantics. Update any assertions on specific CSS class names.
 
 ### Layer 2: Visual Regression (Playwright Screenshots)
+**Prerequisite:** If Playwright is not already set up in the project, add it during Phase 0c as a devDependency.
+
 Before starting migration, capture baseline screenshots. After each phase, compare:
 ```typescript
 await expect(page).toHaveScreenshot('home-page.png', { maxDiffPixelRatio: 0.01 });
@@ -357,7 +373,7 @@ expect(results.violations).toEqual([]);
 ```
 
 ### Layer 4: Bundle Size Budget
-Measure before and after. Target: total JS+CSS increase stays under 40KB gzipped. Use `npx vite-bundle-visualizer` to verify tree-shaking effectiveness.
+Measure current bundle size before migration begins (baseline). After migration, compare total JS+CSS increase and evaluate whether the cost is acceptable relative to the UI consistency gained. Use `npx vite-bundle-visualizer` to verify tree-shaking effectiveness.
 
 ---
 
