@@ -51,6 +51,15 @@ vi.mock('@skyscanner/backpack-web/bpk-component-badge', () => {
   return { default: BpkBadge, BADGE_TYPES };
 });
 
+vi.mock('@skyscanner/backpack-web/bpk-component-card', () => {
+  const BpkCard = (props: { atomic?: boolean; padded?: boolean; children: React.ReactNode; className?: string }) => (
+    <div data-testid="bpk-card" data-atomic={String(props.atomic)} data-padded={String(props.padded)} className={props.className}>
+      {props.children}
+    </div>
+  );
+  return { default: BpkCard };
+});
+
 vi.mock('@skyscanner/bpk-foundations-web/tokens/base.es6', () => ({
   coreAccentDay: 'rgb(0, 98, 227)',
   coreEcoDay: 'rgb(15, 161, 169)',
@@ -259,6 +268,20 @@ describe('ParticipantList', () => {
 
     expect(screen.getByText('5')).toBeInTheDocument();
     expect(screen.getByText('8')).toBeInTheDocument();
+  });
+
+  it('wraps each participant row in a BpkCard', () => {
+    const participants = [
+      makeParticipant({ id: 'p1', name: 'Alice' }),
+      makeParticipant({ id: 'p2', name: 'Bob' }),
+    ];
+    render(
+      <ParticipantList participants={participants} currentRound={makeRound()} currentParticipantId={null} />,
+    );
+    const cards = screen.getAllByTestId('bpk-card');
+    expect(cards).toHaveLength(2);
+    expect(cards[0]).toHaveAttribute('data-atomic', 'false');
+    expect(cards[0]).toHaveAttribute('data-padded', 'true');
   });
 
   it('does not show vote indicators during idle status', () => {

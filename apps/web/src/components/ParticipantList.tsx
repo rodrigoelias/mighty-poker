@@ -2,6 +2,7 @@ import React from 'react';
 import type { Participant, VotingRound } from '@mighty-poker/core';
 import BpkText, { TEXT_STYLES } from '@skyscanner/backpack-web/bpk-component-text';
 import BpkBadge, { BADGE_TYPES } from '@skyscanner/backpack-web/bpk-component-badge';
+import BpkCard from '@skyscanner/backpack-web/bpk-component-card';
 import {
   coreAccentDay,
   coreEcoDay,
@@ -61,20 +62,20 @@ export function ParticipantList({ participants, currentRound, currentParticipant
           const vote = currentRound.votes.find((v) => v.participantId === p.id);
 
           return (
-            <li
-              key={p.id}
-              className={`flex items-center gap-3 p-2 rounded-lg transition-colors ${
-                !p.connected ? 'opacity-50' : ''
-              }`}
-              style={
-                isMe
-                  ? {
-                      backgroundColor: surfaceSubtleDay,
-                      boxShadow: `inset 0 0 0 1px ${coreAccentDay}`,
-                    }
-                  : undefined
-              }
-            >
+            <li key={p.id} className={`${!p.connected ? 'opacity-50' : ''}`}>
+              <BpkCard
+                atomic={false}
+                padded
+                className="flex items-center gap-3 transition-colors"
+                style={
+                  isMe
+                    ? {
+                        backgroundColor: surfaceSubtleDay,
+                        boxShadow: `inset 0 0 0 1px ${coreAccentDay}`,
+                      }
+                    : undefined
+                }
+              >
               <div
                 className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
                 style={{
@@ -137,6 +138,7 @@ export function ParticipantList({ participants, currentRound, currentParticipant
                   </BpkText>
                 </div>
               )}
+              </BpkCard>
             </li>
           );
         })}
