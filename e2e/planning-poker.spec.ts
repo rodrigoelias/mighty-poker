@@ -68,9 +68,9 @@ test.describe('Mighty Poker E2E', () => {
     await facilitatorPage.getByRole('button', { name: 'Start Voting' }).click();
     await expect(facilitatorPage.locator('text=Choose your estimate')).toBeVisible();
 
-    // Both vote
-    await facilitatorPage.getByRole('button', { name: '5', exact: true }).click();
-    await bobPage.getByRole('button', { name: '8', exact: true }).click();
+    // Both vote (cards are now BpkCheckboxCard — click the visible card text)
+    await facilitatorPage.locator('.card-deck-item', { hasText: '5' }).first().click();
+    await bobPage.locator('.card-deck-item', { hasText: '8' }).first().click();
 
     // Wait for both voted indicators
     await expect(facilitatorPage.locator('li', { hasText: 'Alice' }).locator('text=✓')).toBeVisible();
@@ -98,9 +98,9 @@ test.describe('Mighty Poker E2E', () => {
 
     await facilitatorPage.getByRole('button', { name: 'Start Voting' }).click();
 
-    // Both vote — triggers auto-reveal timer (5s)
-    await facilitatorPage.getByRole('button', { name: '3', exact: true }).click();
-    await bobPage.getByRole('button', { name: '3', exact: true }).click();
+    // Both vote — triggers auto-reveal timer (5s) (cards are now BpkCheckboxCard)
+    await facilitatorPage.locator('.card-deck-item', { hasText: '3' }).first().click();
+    await bobPage.locator('.card-deck-item', { hasText: '3' }).first().click();
 
     // Wait up to 8s for auto-reveal
     await expect(facilitatorPage.locator('text=Results')).toBeVisible({ timeout: 8000 });
