@@ -1,48 +1,63 @@
-import React from 'react';
+import BpkText, { TEXT_STYLES, TEXT_COLORS } from '@skyscanner/backpack-web/bpk-component-text';
+import {
+  BpkCheckboxCard,
+  CHECKBOX_CARD_VARIANTS,
+  CHECKBOX_CARD_RADIUS,
+} from '@skyscanner/backpack-web/bpk-component-checkbox-card';
+import './CardDeck.css';
 
 interface Props {
   deck: string[];
   selectedValue: string | null;
   disabled: boolean;
-  onSelect: (value: string) => void;
+  onSelect: (value: string | null) => void;
 }
+
+const specialLabels: Record<string, string> = {
+  '?': 'Pass',
+  '☕': 'Coffee break',
+};
 
 export function CardDeck({ deck, selectedValue, disabled, onSelect }: Props) {
   return (
     <div className="space-y-3">
-      <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider text-center">
+      <BpkText textStyle={TEXT_STYLES.label1} tagName="h2" style={{ textTransform: 'uppercase', letterSpacing: '0.05em', textAlign: 'center' }}>
         Choose your estimate
-      </h2>
-      <div className="flex flex-wrap gap-3 justify-center">
+      </BpkText>
+      <div className="flex flex-wrap gap-2 justify-center" role="radiogroup" aria-label="Estimation values">
         {deck.map((value) => {
           const isSelected = selectedValue === value;
+          const ariaLabel = specialLabels[value];
           return (
-            <button
-              key={value}
-              onClick={() => onSelect(value)}
-              disabled={disabled}
-              aria-pressed={isSelected}
-              className={`
-                w-14 h-20 rounded-xl text-lg font-bold transition-all duration-150 select-none
-                focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500
-                ${
-                  isSelected
-                    ? 'bg-violet-600 text-white shadow-lg scale-105 -translate-y-1'
-                    : disabled
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : 'bg-white text-gray-800 border-2 border-gray-200 hover:border-violet-400 hover:shadow-md hover:-translate-y-0.5 cursor-pointer'
-                }
-              `}
-            >
-              {value}
-            </button>
+            <div key={value} className="card-deck-item" style={{ minWidth: 48, minHeight: 68 }}>
+              <BpkCheckboxCard.Root
+                checked={isSelected}
+                onCheckedChange={(checked) => onSelect(checked ? value : null)}
+                disabled={disabled}
+                variant={CHECKBOX_CARD_VARIANTS.onCanvasDefault}
+                radius={CHECKBOX_CARD_RADIUS.rounded}
+                aria-label={ariaLabel}
+                value={value}
+              >
+                <BpkCheckboxCard.HiddenInput />
+                <BpkCheckboxCard.Content>
+                  <BpkCheckboxCard.Label textStyle={TEXT_STYLES.heading4}>
+                    {value}
+                  </BpkCheckboxCard.Label>
+                </BpkCheckboxCard.Content>
+              </BpkCheckboxCard.Root>
+            </div>
           );
         })}
       </div>
       {selectedValue && (
-        <p className="text-center text-sm text-gray-500">
-          You selected <strong className="text-violet-700">{selectedValue}</strong> — click another card to change
-        </p>
+        <BpkText textStyle={TEXT_STYLES.caption} tagName="p" style={{ textAlign: 'center' }}>
+          You selected{' '}
+          <BpkText textStyle={TEXT_STYLES.caption} tagName="strong" color={TEXT_COLORS.textHero}>
+            {selectedValue}
+          </BpkText>
+          {' '}— click another card to change
+        </BpkText>
       )}
     </div>
   );

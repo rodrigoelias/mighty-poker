@@ -7,12 +7,14 @@ interface RoomStoreState {
   token: string | null;
   connected: boolean;
   error: string | null;
+  pendingVote: string | null;
 
   // Actions
   setRoom: (room: RoomState) => void;
   setIdentity: (participantId: string, roomId: string, token: string) => void;
   setConnected: (connected: boolean) => void;
   setError: (error: string | null) => void;
+  setPendingVote: (value: string | null) => void;
   reset: () => void;
 
   // Derived
@@ -25,18 +27,38 @@ const initialState = {
   token: null,
   connected: false,
   error: null,
+  pendingVote: null,
 };
 
 export const useRoomStore = create<RoomStoreState>((set, get) => ({
   ...initialState,
 
-  setRoom: (room) => set({ room }),
+  setRoom: (room) => {
+    const { pendingVote, participantId } = get();
+    if (pendingVote && participantId) {
+      if (room.currentRound.status !== 'voting') {
+        // Round ended or reset — clear optimistic vote
+        set({ room, pendingVote: null });
+        return;
+      }
+      const serverVote = room.currentRound.votes.find(
+        (v) => v.participantId === participantId,
+      );
+      if (serverVote?.value === pendingVote) {
+        set({ room, pendingVote: null });
+        return;
+      }
+    }
+    set({ room });
+  },
 
   setIdentity: (participantId, _roomId, token) => set({ participantId, token }),
 
   setConnected: (connected) => set({ connected }),
 
   setError: (error) => set({ error }),
+
+  setPendingVote: (value) => set({ pendingVote: value }),
 
   reset: () => set(initialState),
 

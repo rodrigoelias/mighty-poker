@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import BpkButton from '@skyscanner/backpack-web/bpk-component-button';
+import BpkText, { TEXT_STYLES } from '@skyscanner/backpack-web/bpk-component-text';
+import BpkInput from '@skyscanner/backpack-web/bpk-component-input';
+import BpkLabel from '@skyscanner/backpack-web/bpk-component-label';
+import BpkInfoBanner, { ALERT_TYPES } from '@skyscanner/backpack-web/bpk-component-info-banner';
+import { canvasContrastDay, surfaceHeroDay, surfaceDefaultDay, textOnDarkDay, boxShadowLg, boxShadowSm, borderRadiusLg, borderRadiusMd } from '@skyscanner/bpk-foundations-web/tokens/base.es6';
+import { AppNavBar } from '../components/AppNavBar.js';
 import { createRoom } from '../lib/socket.js';
 import { useRoomStore } from '../stores/room-store.js';
 
@@ -8,82 +15,114 @@ export default function HomePage() {
   const [roomName, setRoomName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
   const navigate = useNavigate();
   const setIdentity = useRoomStore((s) => s.setIdentity);
   const setRoom = useRoomStore((s) => s.setRoom);
+
+  function handleBlur(field: string) {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+  }
+
+  function getValid(field: string, value: string): boolean | null {
+    if (!touched[field]) return null;
+    return value.trim().length > 0;
+  }
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
     if (!name.trim() || !roomName.trim()) return;
     setLoading(true);
     setError('');
-    const result = await createRoom(roomName.trim(), name.trim());
-    setLoading(false);
-    if (result.error) {
-      setError(result.error);
-      return;
+    try {
+      const result = await createRoom(roomName.trim(), name.trim());
+      if (result.error) {
+        setError(result.error);
+        return;
+      }
+      setIdentity(result.room.participants[0].id, result.roomId, result.token);
+      setRoom(result.room);
+      localStorage.setItem(`room-token-${result.roomId}`, result.token);
+      navigate(`/room/${result.roomId}`);
+    } catch {
+      setError('Connection timed out. Please try again.');
+    } finally {
+      setLoading(false);
     }
-    setIdentity(result.room.participants[0].id, result.roomId, result.token);
-    setRoom(result.room);
-    localStorage.setItem(`room-token-${result.roomId}`, result.token);
-    navigate(`/room/${result.roomId}`);
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-50 to-indigo-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="w-14 h-14 bg-violet-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-md">
-            <span className="text-2xl">♠</span>
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: canvasContrastDay }}>
+      <AppNavBar />
+      <div className="flex-1 flex items-center justify-center p-4">
+        <div className="p-8 w-full max-w-md" style={{ backgroundColor: surfaceDefaultDay, borderRadius: borderRadiusLg, boxShadow: boxShadowLg }}>
+          <div className="text-center mb-8">
+            <div
+              className="w-14 h-14 flex items-center justify-center mx-auto mb-4"
+              style={{ backgroundColor: surfaceHeroDay, borderRadius: borderRadiusMd, boxShadow: boxShadowSm }}
+            >
+              <span style={{ color: textOnDarkDay, fontSize: '1.5rem' }}>&#9824;</span>
+            </div>
+            <BpkText textStyle={TEXT_STYLES.heading2} tagName="h1">
+              Mighty Poker
+            </BpkText>
+            <BpkText textStyle={TEXT_STYLES.bodyDefault} tagName="p" className="mt-1">
+              Plan together, estimate better
+            </BpkText>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">Mighty Poker</h1>
-          <p className="text-gray-500 mt-1">Plan together, estimate better</p>
+
+          <form onSubmit={handleCreate} className="space-y-4">
+            <div>
+              <BpkLabel htmlFor="name" className="mb-1">
+                Your name
+              </BpkLabel>
+              <BpkInput
+                id="name"
+                name="name"
+                type="text"
+                value={name}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
+                onBlur={() => handleBlur('name')}
+                valid={getValid('name', name)}
+                placeholder="Alice"
+                required
+              />
+            </div>
+            <div>
+              <BpkLabel htmlFor="roomName" className="mb-1">
+                Room name
+              </BpkLabel>
+              <BpkInput
+                id="roomName"
+                name="roomName"
+                type="text"
+                value={roomName}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRoomName(e.target.value)}
+                onBlur={() => handleBlur('roomName')}
+                valid={getValid('roomName', roomName)}
+                placeholder="Sprint 42"
+                required
+              />
+            </div>
+
+            {error && (
+              <BpkInfoBanner
+                type={ALERT_TYPES.ERROR}
+                message={error}
+                role="alert"
+              />
+            )}
+
+            <BpkButton
+              submit
+              disabled={loading || !name.trim() || !roomName.trim()}
+              loading={loading}
+              fullWidth
+            >
+              Create Room
+            </BpkButton>
+          </form>
         </div>
-
-        <form onSubmit={handleCreate} className="space-y-4">
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-              Your name
-            </label>
-            <input
-              id="name"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Alice"
-              required
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all"
-            />
-          </div>
-          <div>
-            <label htmlFor="roomName" className="block text-sm font-medium text-gray-700 mb-1">
-              Room name
-            </label>
-            <input
-              id="roomName"
-              type="text"
-              value={roomName}
-              onChange={(e) => setRoomName(e.target.value)}
-              placeholder="Sprint 42"
-              required
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all"
-            />
-          </div>
-
-          {error && (
-            <p role="alert" className="text-sm text-red-600 bg-red-50 rounded-lg px-4 py-2">
-              {error}
-            </p>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading || !name.trim() || !roomName.trim()}
-            className="w-full py-3 bg-violet-600 hover:bg-violet-700 disabled:bg-violet-300 text-white font-semibold rounded-xl shadow-sm transition-colors"
-          >
-            {loading ? 'Creating...' : 'Create Room'}
-          </button>
-        </form>
       </div>
     </div>
   );

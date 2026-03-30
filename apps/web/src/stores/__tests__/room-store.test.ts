@@ -22,6 +22,7 @@ describe('useRoomStore', () => {
       token: null,
       connected: false,
       error: null,
+      pendingVote: null,
     });
   });
 
@@ -84,6 +85,88 @@ describe('useRoomStore', () => {
       error: null,
     });
     expect(useRoomStore.getState().myVote()).toBe('5');
+  });
+
+  describe('pendingVote', () => {
+    it('setPendingVote stores the pending vote value', () => {
+      useRoomStore.getState().setPendingVote('8');
+      expect(useRoomStore.getState().pendingVote).toBe('8');
+    });
+
+    it('setRoom clears pendingVote when server confirms the vote', () => {
+      useRoomStore.setState({
+        participantId: 'p1',
+        pendingVote: '5',
+      });
+      useRoomStore.getState().setRoom({
+        ...mockRoom,
+        currentRound: {
+          status: 'voting',
+          votes: [{ participantId: 'p1', value: '5' }],
+        },
+      });
+      expect(useRoomStore.getState().pendingVote).toBeNull();
+    });
+
+    it('setRoom keeps pendingVote when server has different vote', () => {
+      useRoomStore.setState({
+        participantId: 'p1',
+        pendingVote: '8',
+      });
+      useRoomStore.getState().setRoom({
+        ...mockRoom,
+        currentRound: {
+          status: 'voting',
+          votes: [{ participantId: 'p1', value: '5' }],
+        },
+      });
+      expect(useRoomStore.getState().pendingVote).toBe('8');
+    });
+
+    it('setRoom keeps pendingVote when server has no vote yet during voting', () => {
+      useRoomStore.setState({
+        participantId: 'p1',
+        pendingVote: '5',
+      });
+      useRoomStore.getState().setRoom({
+        ...mockRoom,
+        currentRound: { status: 'voting', votes: [] },
+      });
+      expect(useRoomStore.getState().pendingVote).toBe('5');
+    });
+
+    it('setRoom clears pendingVote when round status changes to idle', () => {
+      useRoomStore.setState({
+        participantId: 'p1',
+        pendingVote: '5',
+      });
+      useRoomStore.getState().setRoom({
+        ...mockRoom,
+        currentRound: { status: 'idle', votes: [] },
+      });
+      expect(useRoomStore.getState().pendingVote).toBeNull();
+    });
+
+    it('setRoom clears pendingVote when round status changes to revealed', () => {
+      useRoomStore.setState({
+        participantId: 'p1',
+        pendingVote: '5',
+      });
+      useRoomStore.getState().setRoom({
+        ...mockRoom,
+        currentRound: {
+          status: 'revealed',
+          votes: [{ participantId: 'p1', value: '5' }],
+        },
+      });
+      expect(useRoomStore.getState().pendingVote).toBeNull();
+    });
+
+    it('reset clears pendingVote', () => {
+      useRoomStore.getState().setPendingVote('3');
+      useRoomStore.getState().reset();
+      expect(useRoomStore.getState().pendingVote).toBeNull();
+    });
   });
 
   it('myVote returns null when no vote', () => {
