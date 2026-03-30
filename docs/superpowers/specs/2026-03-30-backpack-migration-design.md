@@ -10,7 +10,7 @@
 2. **Drop BpkFieldset** — overkill for 2 simple text inputs; use BpkLabel + BpkInput directly
 3. **Use plain `<button>` for voting cards** — BpkCard has no `selected` prop; fighting its defaults adds complexity
 4. **Use `BpkInfoBanner`** — `BpkBannerAlert` is deprecated
-5. **Use `BpkButtonV2`** — current API with enum-based type/size props
+5. **Use `BpkButton`** — current API with enum-based type/size props
 6. **Self-host Nunito Sans** — eliminates 2 cross-origin requests from critical render path
 7. **Use `sass-embedded`** — 5-10x faster than `sass` for Vite SCSS compilation
 8. **Import `.css` variants** — Vite doesn't transpile SCSS from node_modules; use `bpk-stylesheets/base.css`
@@ -41,10 +41,20 @@ Migrate the mighty-poker frontend from pure Tailwind CSS to a hybrid setup:
 | Card deck | **Plain `<button>` styled with Backpack tokens** | BpkCard has no `selected` prop; layering custom CSS on BpkCardButton fights the component's defaults |
 | Font | Nunito Sans — **self-hosted** (woff2 in `/public/fonts/`) | Eliminates cross-origin font loading; avoids FOUT layout shifts |
 | Tailwind preflight | Disabled | Backpack's `bpk-stylesheets/base.css` is the only CSS reset |
-| Primary color | Backpack Blue (`corePrimaryDay` / #0770e3) | Adopting Backpack's native palette; replaces violet |
+| Action color | Backpack Blue (`coreAccentDay` / #0062e3) | Interactive elements use `coreAccentDay`; `corePrimaryDay` (dark navy #05203c) is brand identity only |
 | Theme | Light | Backpack is light-first; no native dark mode |
 | Token bridge | **Removed** | Post-migration, all colored/styled elements are Backpack components. Tailwind is only used for layout (flex, grid, gap, padding) which doesn't need color tokens |
 | Forms | BpkLabel + BpkInput (no BpkFieldset) | Only 2 simple text inputs with no validation, required markers, or grouped fields |
+
+### Token Semantics (Backpack v42)
+
+| Token | Value | Usage |
+|---|---|---|
+| `corePrimaryDay` | Dark navy `rgb(5, 32, 60)` | Brand identity only — NOT for interactive elements |
+| `coreAccentDay` | Bright blue `rgb(0, 98, 227)` | Action/interactive color (buttons, links, focus rings) |
+| `canvasDay` | Pure white | Card surfaces only |
+| `canvasContrastDay` | Grey-blue `rgb(239, 243, 248)` | Page backgrounds (Backpack recommended pattern) |
+| `surfaceDefaultDay` | White | Card surfaces on top of `canvasContrastDay` for visual depth |
 
 ---
 
@@ -54,10 +64,10 @@ Migrate the mighty-poker frontend from pure Tailwind CSS to a hybrid setup:
 
 **BLOCKER:** Validate React 19 + Backpack + Vite + SCSS before committing to migration.
 
-Create a throwaway branch and test ONE component (`BpkButtonV2` replacing a `<button>` in `HomePage.tsx`) end-to-end:
+Create a throwaway branch and test ONE component (`BpkButton` replacing a `<button>` in `HomePage.tsx`) end-to-end:
 - Install Backpack with `--legacy-peer-deps`
 - Verify `bpk-stylesheets/base.css` imports correctly in Vite
-- Verify `BpkButtonV2` renders and accepts click handlers without type errors
+- Verify `BpkButton` renders and accepts click handlers without type errors
 - If React 19 type conflicts surface at call sites, decide: (a) pin `@types/react` to 18.x, (b) downgrade to React 18, or (c) proceed with `// @ts-expect-error` pragmas
 - Document the result as a go/no-go decision
 
@@ -178,14 +188,14 @@ Layout utilities ONLY:
 
 | Original Spec | Correct Name | Notes |
 |---|---|---|
-| `BpkButton` | `BpkButtonV2` | V2 uses enum-based `type`/`size` props |
+| `BpkButtonV2` | `BpkButton` | V2 was renamed back to `BpkButton` in Backpack v42 |
 | `BpkBannerAlert` | `BpkInfoBanner` | `bpk-component-banner-alert` is deprecated |
 | `BpkCardButton` | Plain `<button>` | BpkCard has no `selected` prop; custom cards are simpler |
 
 ### Import Patterns
 
 ```tsx
-import { BpkButtonV2, BUTTON_TYPES, SIZE_TYPES } from '@skyscanner/backpack-web/bpk-component-button';
+import { BpkButton, BUTTON_TYPES, SIZE_TYPES } from '@skyscanner/backpack-web/bpk-component-button';
 import BpkText, { TEXT_STYLES } from '@skyscanner/backpack-web/bpk-component-text';
 import BpkInput, { INPUT_TYPES } from '@skyscanner/backpack-web/bpk-component-input';
 import BpkLabel from '@skyscanner/backpack-web/bpk-component-label';
@@ -202,20 +212,20 @@ import { BpkSpinner, SPINNER_TYPES } from '@skyscanner/backpack-web/bpk-componen
 - `BpkText` (`textStyle={TEXT_STYLES.bodyDefault}`) for subtitle
 - `BpkLabel` + `BpkInput` for "Your name" and "Room name" (no BpkFieldset)
 - `BpkInput` `valid` prop: `null` (untouched), `true` (valid), `false` (invalid + red border)
-- `BpkButtonV2` (`type={BUTTON_TYPES.primary}`, `submit`, `loading={isLoading}`) for "Create Room"
+- `BpkButton` (`type={BUTTON_TYPES.primary}`, `submit`, `loading={isLoading}`) for "Create Room"
 - `BpkInfoBanner` (`type={ALERT_TYPES.ERROR}`, `message={error}`) for error messages
-- Background: replace gradient with Backpack `canvasDay` token or flat light background
+- Background: `canvasContrastDay` token (#EFF3F8) for page background; white cards (`surfaceDefaultDay`) provide visual depth
 - Spade logo block: keep as custom element, use Backpack color tokens
 
 #### JoinPage (`/room/:roomId/join`)
 - Same form pattern as HomePage
 - `BpkSpinner` (`type={SPINNER_TYPES.primary}`) for loading state
-- `BpkButtonV2` (`type={BUTTON_TYPES.secondary}`) for "Create a new room" on not-found
+- `BpkButton` (`type={BUTTON_TYPES.secondary}`) for "Create a new room" on not-found
 - Not-found emoji state: keep as custom element
 
 #### RoomPage (`/room/:roomId`)
 - Layout: Tailwind `grid-cols-1 lg:grid-cols-[300px_1fr] gap-6`
-- Background: Backpack `canvasDay` token value via inline style or small CSS class
+- Background: Backpack `canvasContrastDay` token value via inline style
 
 ### Components
 
@@ -226,7 +236,7 @@ import { BpkSpinner, SPINNER_TYPES } from '@skyscanner/backpack-web/bpk-componen
   - `voting` → `BADGE_TYPES.brand` (label: "Voting")
   - `revealed` → `BADGE_TYPES.success` (label: "Revealed")
 - `BpkText` (`textStyle={TEXT_STYLES.caption}`) for participant count
-- `BpkButtonV2` (`type={BUTTON_TYPES.link}`) for "Invite" action
+- `BpkButton` (`type={BUTTON_TYPES.link}`) for "Invite" action
 - Inline SVG copy icon: keep as-is (Backpack has icons but no copy icon equivalent needed)
 
 #### ParticipantList
@@ -256,9 +266,9 @@ import { BpkSpinner, SPINNER_TYPES } from '@skyscanner/backpack-web/bpk-componen
 - Preserve emoji characters (🎉, ⚠️) in messages
 
 #### FacilitatorControls
-- `BpkButtonV2` (`type={BUTTON_TYPES.primary}`) for "Start Voting"
-- `BpkButtonV2` (`type={BUTTON_TYPES.secondary}`) for "Reveal Votes"
-- `BpkButtonV2` (`type={BUTTON_TYPES.secondary}`) for "New Round"
+- `BpkButton` (`type={BUTTON_TYPES.primary}`) for "Start Voting"
+- `BpkButton` (`type={BUTTON_TYPES.secondary}`) for "Reveal Votes"
+- `BpkButton` (`type={BUTTON_TYPES.secondary}`) for "New Round"
 
 #### ConnectionBanner
 - `BpkInfoBanner` (`type={ALERT_TYPES.WARN}`, `message="Reconnecting..."`)
@@ -273,7 +283,7 @@ Migrate leaf nodes first, then work inward. Each phase produces a green test sui
 
 ### Phase 0a — Spike (go/no-go gate, throwaway branch)
 1. Create throwaway branch, install Backpack with `--legacy-peer-deps`
-2. Replace one `<button>` in `HomePage.tsx` with `BpkButtonV2`
+2. Replace one `<button>` in `HomePage.tsx` with `BpkButton`
 3. Verify `bpk-stylesheets/base.css` imports correctly in Vite
 4. Verify component renders without type errors
 5. If React 19 type conflicts surface: decide (a) pin `@types/react` to 18.x, (b) downgrade to React 18, or (c) `@ts-expect-error` pragmas
@@ -298,14 +308,14 @@ Migrate leaf nodes first, then work inward. Each phase produces a green test sui
 
 ### Phase 1 — Leaf Components (no children that need migration)
 18. `ConnectionBanner` → `BpkInfoBanner` + debounce logic
-19. `FacilitatorControls` → `BpkButtonV2` (3 buttons, straightforward swap)
+19. `FacilitatorControls` → `BpkButton` (3 buttons, straightforward swap)
 
 ### Phase 2 — Form Pages (self-contained)
-20. `HomePage` → `BpkText` + `BpkLabel`/`BpkInput` + `BpkButtonV2` + `BpkInfoBanner`
+20. `HomePage` → `BpkText` + `BpkLabel`/`BpkInput` + `BpkButton` + `BpkInfoBanner`
 21. `JoinPage` → same pattern + `BpkSpinner`
 
 ### Phase 3 — Complex Components
-22. `RoomHeader` → `BpkText` + `BpkBadge` + `BpkButtonV2` (link)
+22. `RoomHeader` → `BpkText` + `BpkBadge` + `BpkButton` (link)
 23. `CardDeck` → Backpack token-styled `<button>` elements (highest risk — test thoroughly)
 24. `ParticipantList` → `BpkCard` + `BpkBadge` + `BpkText` + custom avatar
 25. `RevealedResults` → `BpkCard` + `BpkBadge` + `BpkText` + `BpkInfoBanner`
