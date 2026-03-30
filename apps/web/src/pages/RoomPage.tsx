@@ -1,5 +1,9 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import BpkText, { TEXT_STYLES } from '@skyscanner/backpack-web/bpk-component-text';
+import BpkCard from '@skyscanner/backpack-web/bpk-component-card';
+import { BpkSpinner, SPINNER_TYPES } from '@skyscanner/backpack-web/bpk-component-spinner';
+import { canvasDay } from '@skyscanner/bpk-foundations-web/tokens/base.es6';
 import { getSocket, startRound, castVote, revealVotes, resetRound } from '../lib/socket.js';
 import { useRoomStore } from '../stores/room-store.js';
 import { RoomHeader } from '../components/RoomHeader.js';
@@ -23,14 +27,17 @@ export default function RoomPage() {
       return;
     }
 
-    // BUG 1 FIX: only ensure socket exists — listeners are registered in SocketProvider
+    // Ensure socket connection exists — listeners are registered in SocketProvider
     getSocket(token ?? undefined);
   }, [roomId, token, navigate]);
 
   if (!room) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-500">Loading room...</p>
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: canvasDay }}
+      >
+        <BpkSpinner type={SPINNER_TYPES.primary} />
       </div>
     );
   }
@@ -42,7 +49,7 @@ export default function RoomPage() {
   const currentVote = pendingVote ?? myVote();
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: canvasDay }}>
       <ConnectionBanner connected={connected} />
       <RoomHeader
         roomName={room.name}
@@ -55,62 +62,62 @@ export default function RoomPage() {
       <main className="flex-1 grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6 p-6 max-w-6xl mx-auto w-full">
         {/* Left column: participants */}
         <aside className="space-y-4">
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
+          <BpkCard padded>
             <ParticipantList
               participants={room.participants}
               currentRound={room.currentRound}
               currentParticipantId={participantId}
             />
-          </div>
+          </BpkCard>
         </aside>
 
         {/* Right column: voting area */}
         <section className="space-y-6">
           {/* Facilitator controls */}
           {isFacilitator && (
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
+            <BpkCard padded>
               <FacilitatorControls
                 roundStatus={room.currentRound.status}
                 onStart={() => roomId && startRound(roomId)}
                 onReveal={() => roomId && revealVotes(roomId)}
                 onReset={() => roomId && resetRound(roomId)}
               />
-            </div>
+            </BpkCard>
           )}
 
           {/* Voting cards */}
           {isVoting && (
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <BpkCard padded>
               <CardDeck
                 deck={room.deck}
                 selectedValue={currentVote}
                 disabled={false}
                 onSelect={(value) => roomId && castVote(roomId, value)}
               />
-            </div>
+            </BpkCard>
           )}
 
           {/* Waiting state */}
           {room.currentRound.status === 'idle' && (
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
+            <BpkCard padded className="p-12 text-center">
               <p className="text-4xl mb-4">🃏</p>
-              <h2 className="text-xl font-semibold text-gray-700 mb-2">
+              <BpkText textStyle={TEXT_STYLES.heading4} tagName="h2" className="mb-2">
                 Waiting for facilitator to start voting
-              </h2>
-              <p className="text-gray-400 text-sm">
+              </BpkText>
+              <BpkText textStyle={TEXT_STYLES.caption} tagName="p">
                 Participants will be able to cast their votes once the round begins
-              </p>
-            </div>
+              </BpkText>
+            </BpkCard>
           )}
 
           {/* Results */}
           {isRevealed && (
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <BpkCard padded>
               <RevealedResults
                 votes={room.currentRound.votes}
                 participants={room.participants}
               />
-            </div>
+            </BpkCard>
           )}
         </section>
       </main>
