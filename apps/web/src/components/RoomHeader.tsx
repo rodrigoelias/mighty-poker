@@ -1,9 +1,9 @@
 import React from 'react';
 import type { RoundStatus } from '@mighty-poker/core';
-import BpkText, { TEXT_STYLES } from '@skyscanner/backpack-web/bpk-component-text';
+import BpkText, { TEXT_STYLES, TEXT_COLORS } from '@skyscanner/backpack-web/bpk-component-text';
 import BpkBadge, { BADGE_TYPES } from '@skyscanner/backpack-web/bpk-component-badge';
 import BpkButton, { BUTTON_TYPES } from '@skyscanner/backpack-web/bpk-component-button';
-import { textErrorDay } from '@skyscanner/bpk-foundations-web/tokens/base.es6';
+import { surfaceHeroDay } from '@skyscanner/bpk-foundations-web/tokens/base.es6';
 
 interface Props {
   roomName: string;
@@ -34,32 +34,31 @@ export function RoomHeader({ roomName, roomId, participantCount, roundStatus, co
   }
 
   return (
-    <header className="flex items-center justify-between px-6 py-4">
+    <header
+      className="flex items-center justify-between px-6 py-4"
+      style={{ backgroundColor: surfaceHeroDay }}
+    >
       <div className="flex items-center gap-4">
         <div>
-          <BpkText textStyle={TEXT_STYLES.heading4} tagName="h1">
+          <BpkText textStyle={TEXT_STYLES.heading3} tagName="h1" color={TEXT_COLORS.textOnDark}>
             {roomName}
           </BpkText>
           <div className="flex items-center gap-2 mt-0.5">
             <BpkBadge type={badgeTypeMap[roundStatus]}>
               {badgeLabelMap[roundStatus]}
             </BpkBadge>
-            <BpkText textStyle={TEXT_STYLES.caption} tagName="span">
+            <BpkText textStyle={TEXT_STYLES.caption} tagName="span" color={TEXT_COLORS.textOnDark}>
               {participantCount} participant{participantCount !== 1 ? 's' : ''}
             </BpkText>
             {!connected && (
-              <BpkText
-                textStyle={TEXT_STYLES.caption}
-                tagName="span"
-                style={{ color: textErrorDay }}
-              >
+              <BpkText textStyle={TEXT_STYLES.caption} tagName="span" color={TEXT_COLORS.textError}>
                 &bull; Reconnecting...
               </BpkText>
             )}
           </div>
         </div>
       </div>
-      <BpkButton type={BUTTON_TYPES.link} onClick={copyInviteLink}>
+      <BpkButton type={BUTTON_TYPES.primaryOnDark} onClick={copyInviteLink}>
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             strokeLinecap="round"

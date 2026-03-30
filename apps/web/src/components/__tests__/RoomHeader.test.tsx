@@ -4,26 +4,33 @@ import { RoomHeader } from '../RoomHeader';
 
 vi.mock('@skyscanner/backpack-web/bpk-component-text', () => {
   const TEXT_STYLES = {
+    heading3: 'heading-3',
     heading4: 'heading-4',
     caption: 'caption',
+  } as const;
+
+  const TEXT_COLORS = {
+    textOnDark: 'text-on-dark',
+    textError: 'text-error',
   } as const;
 
   const BpkText = (props: {
     textStyle?: string;
     tagName?: string;
     children: React.ReactNode;
+    color?: string;
     style?: React.CSSProperties;
     className?: string;
   }) => {
     const Tag = (props.tagName || 'span') as keyof JSX.IntrinsicElements;
     return (
-      <Tag data-testid="bpk-text" data-style={props.textStyle} style={props.style}>
+      <Tag data-testid="bpk-text" data-style={props.textStyle} data-color={props.color} style={props.style}>
         {props.children}
       </Tag>
     );
   };
 
-  return { default: BpkText, TEXT_STYLES };
+  return { default: BpkText, TEXT_STYLES, TEXT_COLORS };
 });
 
 vi.mock('@skyscanner/backpack-web/bpk-component-badge', () => {
@@ -51,6 +58,8 @@ vi.mock('@skyscanner/backpack-web/bpk-component-button', () => {
   const BUTTON_TYPES = {
     primary: 'primary',
     link: 'link',
+    secondary: 'secondary',
+    primaryOnDark: 'primary-on-dark',
   } as const;
 
   const BpkButton = (props: {
@@ -68,6 +77,7 @@ vi.mock('@skyscanner/backpack-web/bpk-component-button', () => {
 
 vi.mock('@skyscanner/bpk-foundations-web/tokens/base.es6', () => ({
   textErrorDay: 'rgb(231, 8, 102)',
+  surfaceHeroDay: 'rgb(0, 98, 227)',
 }));
 
 const defaultProps = {
@@ -120,10 +130,10 @@ describe('RoomHeader', () => {
     expect(screen.getByText('1 participant')).toBeInTheDocument();
   });
 
-  it('renders Invite button with link type', () => {
+  it('renders Invite button with primaryOnDark type', () => {
     render(<RoomHeader {...defaultProps} />);
     const button = screen.getByTestId('bpk-button');
-    expect(button).toHaveAttribute('data-type', 'link');
+    expect(button).toHaveAttribute('data-type', 'primary-on-dark');
     expect(button).toHaveTextContent('Invite');
   });
 
@@ -147,5 +157,17 @@ describe('RoomHeader', () => {
   it('shows reconnecting text when not connected', () => {
     render(<RoomHeader {...defaultProps} connected={false} />);
     expect(screen.getByText(/Reconnecting/)).toBeInTheDocument();
+  });
+
+  it('renders with surfaceHeroDay background', () => {
+    render(<RoomHeader {...defaultProps} />);
+    const header = screen.getByRole('banner');
+    expect(header).toHaveStyle({ backgroundColor: 'rgb(0, 98, 227)' });
+  });
+
+  it('renders invite button with primaryOnDark type', () => {
+    render(<RoomHeader {...defaultProps} />);
+    const button = screen.getByRole('button', { name: /invite/i });
+    expect(button).toHaveAttribute('data-type', 'primary-on-dark');
   });
 });
