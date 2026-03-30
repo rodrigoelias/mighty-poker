@@ -123,7 +123,7 @@ vi.mock('@skyscanner/backpack-web/bpk-component-spinner', () => {
 });
 
 vi.mock('@skyscanner/bpk-foundations-web/tokens/base.es6', () => ({
-  canvasDay: 'rgb(241, 242, 248)',
+  canvasContrastDay: 'rgb(239, 243, 248)',
 }));
 
 // --- Helpers ---

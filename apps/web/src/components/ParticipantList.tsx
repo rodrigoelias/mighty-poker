@@ -3,7 +3,6 @@ import type { Participant, VotingRound } from '@mighty-poker/core';
 import BpkText, { TEXT_STYLES } from '@skyscanner/backpack-web/bpk-component-text';
 import BpkBadge, { BADGE_TYPES } from '@skyscanner/backpack-web/bpk-component-badge';
 import {
-  corePrimaryDay,
   coreAccentDay,
   coreEcoDay,
   statusSuccessSpotDay,
@@ -31,7 +30,6 @@ function initials(name: string): string {
 }
 
 const avatarColors = [
-  corePrimaryDay,
   coreAccentDay,
   statusSuccessSpotDay,
   statusWarningSpotDay,

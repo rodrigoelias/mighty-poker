@@ -52,7 +52,6 @@ vi.mock('@skyscanner/backpack-web/bpk-component-badge', () => {
 });
 
 vi.mock('@skyscanner/bpk-foundations-web/tokens/base.es6', () => ({
-  corePrimaryDay: 'rgb(5, 32, 60)',
   coreAccentDay: 'rgb(0, 98, 227)',
   coreEcoDay: 'rgb(15, 161, 169)',
   statusSuccessSpotDay: 'rgb(12, 131, 138)',

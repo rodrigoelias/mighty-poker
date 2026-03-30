@@ -4,7 +4,7 @@ import BpkText, { TEXT_STYLES } from '@skyscanner/backpack-web/bpk-component-tex
 import BpkBadge, { BADGE_TYPES } from '@skyscanner/backpack-web/bpk-component-badge';
 import BpkCard from '@skyscanner/backpack-web/bpk-component-card';
 import BpkInfoBanner, { ALERT_TYPES } from '@skyscanner/backpack-web/bpk-component-info-banner';
-import { corePrimaryDay } from '@skyscanner/bpk-foundations-web/tokens/base.es6';
+import { coreAccentDay } from '@skyscanner/bpk-foundations-web/tokens/base.es6';
 
 interface Props {
   votes: Vote[];
@@ -52,7 +52,7 @@ export function RevealedResults({ votes, participants }: Props) {
                 <BpkText
                   textStyle={TEXT_STYLES.heading2}
                   tagName="span"
-                  style={{ color: corePrimaryDay }}
+                  style={{ color: coreAccentDay }}
                 >
                   {vote.value}
                 </BpkText>

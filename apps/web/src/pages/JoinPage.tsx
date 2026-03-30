@@ -6,7 +6,7 @@ import BpkInput from '@skyscanner/backpack-web/bpk-component-input';
 import BpkLabel from '@skyscanner/backpack-web/bpk-component-label';
 import BpkInfoBanner, { ALERT_TYPES } from '@skyscanner/backpack-web/bpk-component-info-banner';
 import { BpkSpinner, SPINNER_TYPES } from '@skyscanner/backpack-web/bpk-component-spinner';
-import { canvasDay, corePrimaryDay, surfaceDefaultDay, textOnDarkDay } from '@skyscanner/bpk-foundations-web/tokens/base.es6';
+import { canvasContrastDay, surfaceHeroDay, surfaceDefaultDay, textOnDarkDay } from '@skyscanner/bpk-foundations-web/tokens/base.es6';
 import { joinRoom } from '../lib/socket.js';
 import { useRoomStore } from '../stores/room-store.js';
 
@@ -64,7 +64,7 @@ export default function JoinPage() {
     return (
       <div
         className="min-h-screen flex items-center justify-center"
-        style={{ backgroundColor: canvasDay }}
+        style={{ backgroundColor: canvasContrastDay }}
       >
         <BpkSpinner type={SPINNER_TYPES.primary} />
       </div>
@@ -75,7 +75,7 @@ export default function JoinPage() {
     return (
       <div
         className="min-h-screen flex items-center justify-center p-4"
-        style={{ backgroundColor: canvasDay }}
+        style={{ backgroundColor: canvasContrastDay }}
       >
         <div className="rounded-2xl shadow-lg p-8 text-center max-w-sm w-full" style={{ backgroundColor: surfaceDefaultDay }}>
           <p className="text-4xl mb-4">😕</p>
@@ -99,13 +99,13 @@ export default function JoinPage() {
   return (
     <div
       className="min-h-screen flex items-center justify-center p-4"
-      style={{ backgroundColor: canvasDay }}
+      style={{ backgroundColor: canvasContrastDay }}
     >
       <div className="rounded-2xl shadow-lg p-8 w-full max-w-md" style={{ backgroundColor: surfaceDefaultDay }}>
         <div className="text-center mb-8">
           <div
             className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-md"
-            style={{ backgroundColor: corePrimaryDay }}
+            style={{ backgroundColor: surfaceHeroDay }}
           >
             <span className="text-2xl" style={{ color: textOnDarkDay }}>&#9824;</span>
           </div>

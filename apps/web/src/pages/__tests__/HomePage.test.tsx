@@ -110,8 +110,8 @@ vi.mock('@skyscanner/backpack-web/bpk-component-info-banner', () => {
 });
 
 vi.mock('@skyscanner/bpk-foundations-web/tokens/base.es6', () => ({
-  canvasDay: 'rgb(255, 255, 255)',
-  corePrimaryDay: 'rgb(5, 32, 60)',
+  canvasContrastDay: 'rgb(239, 243, 248)',
+  surfaceHeroDay: 'rgb(0, 98, 227)',
   surfaceDefaultDay: 'rgb(255, 255, 255)',
   textOnDarkDay: 'rgb(255, 255, 255)',
 }));

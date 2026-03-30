@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import BpkText, { TEXT_STYLES } from '@skyscanner/backpack-web/bpk-component-text';
 import BpkCard from '@skyscanner/backpack-web/bpk-component-card';
 import { BpkSpinner, SPINNER_TYPES } from '@skyscanner/backpack-web/bpk-component-spinner';
-import { canvasDay } from '@skyscanner/bpk-foundations-web/tokens/base.es6';
+import { canvasContrastDay } from '@skyscanner/bpk-foundations-web/tokens/base.es6';
 import { getSocket, startRound, castVote, revealVotes, resetRound } from '../lib/socket.js';
 import { useRoomStore } from '../stores/room-store.js';
 import { RoomHeader } from '../components/RoomHeader.js';
@@ -35,7 +35,7 @@ export default function RoomPage() {
     return (
       <div
         className="min-h-screen flex items-center justify-center"
-        style={{ backgroundColor: canvasDay }}
+        style={{ backgroundColor: canvasContrastDay }}
       >
         <BpkSpinner type={SPINNER_TYPES.primary} />
       </div>
@@ -49,7 +49,7 @@ export default function RoomPage() {
   const currentVote = pendingVote ?? myVote();
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ backgroundColor: canvasDay }}>
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: canvasContrastDay }}>
       <ConnectionBanner connected={connected} />
       <RoomHeader
         roomName={room.name}

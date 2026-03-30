@@ -1,7 +1,7 @@
 import React from 'react';
 import BpkText, { TEXT_STYLES } from '@skyscanner/backpack-web/bpk-component-text';
 import {
-  corePrimaryDay,
+  coreAccentDay,
   surfaceDefaultDay,
   surfaceHighlightDay,
   lineDay,
@@ -26,7 +26,7 @@ const defaultStyle: React.CSSProperties = {
 };
 
 const selectedStyle: React.CSSProperties = {
-  backgroundColor: corePrimaryDay,
+  backgroundColor: coreAccentDay,
   color: textOnDarkDay,
   transform: 'translateY(-4px)',
   boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
@@ -70,7 +70,7 @@ export function CardDeck({ deck, selectedValue, disabled, onSelect }: Props) {
       {selectedValue && (
         <BpkText textStyle={TEXT_STYLES.caption} tagName="p" className="text-center">
           You selected{' '}
-          <BpkText textStyle={TEXT_STYLES.caption} tagName="strong" style={{ color: corePrimaryDay }}>
+          <BpkText textStyle={TEXT_STYLES.caption} tagName="strong" style={{ color: coreAccentDay }}>
             {selectedValue}
           </BpkText>
           {' '}— click another card to change
