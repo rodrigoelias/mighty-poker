@@ -24,12 +24,12 @@ export function CardDeck({ deck, selectedValue, disabled, onSelect }: Props) {
       <BpkText textStyle={TEXT_STYLES.label1} tagName="h2" style={{ textTransform: 'uppercase', letterSpacing: '0.05em', textAlign: 'center' }}>
         Choose your estimate
       </BpkText>
-      <div className="flex flex-wrap gap-4 justify-center" role="radiogroup" aria-label="Estimation values">
+      <div className="flex flex-wrap gap-2 justify-center" role="radiogroup" aria-label="Estimation values">
         {deck.map((value) => {
           const isSelected = selectedValue === value;
           const ariaLabel = specialLabels[value];
           return (
-            <div key={value} className="card-deck-item" style={{ minWidth: 60, minHeight: 84 }}>
+            <div key={value} className="card-deck-item" style={{ minWidth: 48, minHeight: 68 }}>
               <BpkCheckboxCard.Root
                 checked={isSelected}
                 onCheckedChange={(checked) => onSelect(checked ? value : null)}
