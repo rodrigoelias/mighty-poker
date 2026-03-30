@@ -1,51 +1,21 @@
 import React from 'react';
 import type { Participant, VotingRound } from '@mighty-poker/core';
-import BpkText, { TEXT_STYLES } from '@skyscanner/backpack-web/bpk-component-text';
+import BpkText, { TEXT_STYLES, TEXT_COLORS } from '@skyscanner/backpack-web/bpk-component-text';
 import BpkBadge, { BADGE_TYPES } from '@skyscanner/backpack-web/bpk-component-badge';
 import BpkCard from '@skyscanner/backpack-web/bpk-component-card';
 import {
   coreAccentDay,
-  coreEcoDay,
-  corePrimaryDay,
-  statusSuccessSpotDay,
-  statusWarningSpotDay,
-  statusDangerSpotDay,
-  surfaceHeroDay,
   surfaceSubtleDay,
   lineDay,
   textOnDarkDay,
   textHeroDay,
 } from '@skyscanner/bpk-foundations-web/tokens/base.es6';
+import { avatarColor, initials } from '../lib/avatar.js';
 
 interface Props {
   participants: Participant[];
   currentRound: VotingRound;
   currentParticipantId: string | null;
-}
-
-function initials(name: string): string {
-  return name
-    .split(' ')
-    .map((w) => w[0]?.toUpperCase() ?? '')
-    .slice(0, 2)
-    .join('');
-}
-
-const avatarColors = [
-  coreAccentDay,
-  statusSuccessSpotDay,
-  statusWarningSpotDay,
-  statusDangerSpotDay,
-  coreEcoDay,
-  surfaceHeroDay,
-  surfaceSubtleDay,
-  corePrimaryDay,
-];
-
-function avatarColor(name: string): string {
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  return avatarColors[Math.abs(hash) % avatarColors.length];
 }
 
 export function ParticipantList({ participants, currentRound, currentParticipantId }: Props) {
@@ -54,7 +24,7 @@ export function ParticipantList({ participants, currentRound, currentParticipant
 
   return (
     <div className="space-y-2">
-      <BpkText textStyle={TEXT_STYLES.caption} tagName="h2">
+      <BpkText textStyle={TEXT_STYLES.label1} tagName="h2">
         Participants ({participants.length})
       </BpkText>
       <ul className="list-none space-y-2">
@@ -72,14 +42,15 @@ export function ParticipantList({ participants, currentRound, currentParticipant
                   isMe
                     ? {
                         backgroundColor: surfaceSubtleDay,
-                        boxShadow: `inset 0 0 0 1px ${coreAccentDay}`,
+                        borderLeft: `4px solid ${coreAccentDay}`,
                       }
                     : undefined
                 }
               >
                 <div className="flex items-center gap-3">
               <div
-                className="w-9 h-9 flex items-center justify-center flex-shrink-0"
+                data-testid="avatar"
+                className="w-12 h-12 flex items-center justify-center flex-shrink-0"
                 style={{
                   backgroundColor: avatarColor(p.name),
                   color: textOnDarkDay,
@@ -97,7 +68,7 @@ export function ParticipantList({ participants, currentRound, currentParticipant
                     <BpkText
                       textStyle={TEXT_STYLES.caption}
                       tagName="span"
-                      style={{ color: coreAccentDay }}
+                      color={TEXT_COLORS.textHero}
                     >
                       (you)
                     </BpkText>

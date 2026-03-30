@@ -10,24 +10,30 @@ vi.mock('@skyscanner/backpack-web/bpk-component-text', () => {
     heading4: 'heading-4',
     bodyDefault: 'body-default',
     caption: 'caption',
+    label1: 'label-1',
+  } as const;
+
+  const TEXT_COLORS = {
+    textHero: 'text-hero',
   } as const;
 
   const BpkText = (props: {
     textStyle?: string;
     tagName?: string;
     children: React.ReactNode;
+    color?: string;
     style?: React.CSSProperties;
     className?: string;
   }) => {
     const Tag = (props.tagName || 'span') as keyof JSX.IntrinsicElements;
     return (
-      <Tag data-testid="bpk-text" data-style={props.textStyle} style={props.style}>
+      <Tag data-testid="bpk-text" data-text-style={props.textStyle} data-color={props.color} style={props.style}>
         {props.children}
       </Tag>
     );
   };
 
-  return { default: BpkText, TEXT_STYLES };
+  return { default: BpkText, TEXT_STYLES, TEXT_COLORS };
 });
 
 vi.mock('@skyscanner/backpack-web/bpk-component-badge', () => {
@@ -52,8 +58,8 @@ vi.mock('@skyscanner/backpack-web/bpk-component-badge', () => {
 });
 
 vi.mock('@skyscanner/backpack-web/bpk-component-card', () => {
-  const BpkCard = (props: { atomic?: boolean; padded?: boolean; children: React.ReactNode; className?: string }) => (
-    <div data-testid="bpk-card" data-atomic={String(props.atomic)} data-padded={String(props.padded)} className={props.className}>
+  const BpkCard = (props: { atomic?: boolean; padded?: boolean; children: React.ReactNode; className?: string; style?: React.CSSProperties }) => (
+    <div data-testid="bpk-card" data-atomic={String(props.atomic)} data-padded={String(props.padded)} className={props.className} style={props.style}>
       {props.children}
     </div>
   );
@@ -72,15 +78,28 @@ vi.mock('@skyscanner/bpk-foundations-web/tokens/base.es6', () => ({
   lineDay: 'rgb(193, 199, 207)',
   textOnDarkDay: 'rgb(255, 255, 255)',
   textHeroDay: 'rgb(0, 98, 227)',
+  textErrorDay: 'rgb(209, 67, 91)',
+  textSecondaryDay: 'rgb(104, 113, 127)',
 }));
 
-function makeParticipant(overrides: Partial<Participant> = {}): Participant {
-  return {
+function makeParticipant(nameOrOverrides?: string | Partial<Participant>, overrides: Partial<Participant> = {}): Participant {
+  const base: Participant = {
     id: 'p1',
     name: 'Alice Smith',
     role: 'voter',
     connected: true,
-    ...overrides,
+  };
+  if (typeof nameOrOverrides === 'string') {
+    return { ...base, name: nameOrOverrides, ...overrides };
+  }
+  return { ...base, ...(nameOrOverrides ?? {}) };
+}
+
+function makeProps(participants: Participant[], extra: Partial<{ currentRound: VotingRound; currentParticipantId: string | null }> = {}) {
+  return {
+    participants,
+    currentRound: extra.currentRound ?? makeRound(),
+    currentParticipantId: extra.currentParticipantId ?? null,
   };
 }
 
@@ -285,27 +304,35 @@ describe('ParticipantList', () => {
     expect(cards[0]).toHaveAttribute('data-padded', 'true');
   });
 
-  it('uses an 8-color avatar palette', () => {
-    const participants = Array.from({ length: 8 }, (_, i) =>
-      makeParticipant({ id: `p${i}`, name: `User ${i}` }),
-    );
-    const { container } = render(
-      <ParticipantList participants={participants} currentRound={makeRound()} currentParticipantId={null} />,
-    );
-    const avatars = container.querySelectorAll('.w-9.h-9');
-    expect(avatars).toHaveLength(8);
+  it('renders 48x48 avatars', () => {
+    render(<ParticipantList {...makeProps([makeParticipant('Alice Smith')])} />);
+    const avatar = screen.getByText('AS').closest('div');
+    expect(avatar).toHaveClass('w-12', 'h-12');
   });
 
-  it('includes corePrimaryDay in avatar color palette', () => {
-    const participants = Array.from({ length: 20 }, (_, i) =>
-      makeParticipant({ id: `p${i}`, name: String(i) }),
-    );
-    const { container } = render(
-      <ParticipantList participants={participants} currentRound={makeRound()} currentParticipantId={null} />,
-    );
-    const avatars = container.querySelectorAll('.w-9.h-9');
-    const colors = Array.from(avatars).map((el) => (el as HTMLElement).style.backgroundColor);
-    expect(colors).toContain('rgb(5, 32, 60)');
+  it('highlights current user with surfaceSubtleDay background and coreAccentDay left border', () => {
+    const props = makeProps([makeParticipant('Alice', { id: 'p1' })]);
+    render(<ParticipantList {...props} currentParticipantId="p1" />);
+    const card = screen.getByText('Alice').closest('[data-testid="bpk-card"]');
+    expect(card).toHaveStyle({
+      backgroundColor: 'rgb(227, 240, 255)',
+      borderLeft: '4px solid rgb(0, 98, 227)',
+    });
+  });
+
+  it('uses an 8-color avatar palette with all distinct colours', () => {
+    const names = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+    const participants = names.map((n, i) => makeParticipant(n, { id: `p${i}` }));
+    render(<ParticipantList {...makeProps(participants)} />);
+    const avatars = document.querySelectorAll('[data-testid="avatar"]');
+    const colors = new Set(Array.from(avatars).map((el) => (el as HTMLElement).style.backgroundColor));
+    expect(colors.size).toBeGreaterThanOrEqual(8);
+  });
+
+  it('renders heading with label1 text style', () => {
+    render(<ParticipantList {...makeProps([makeParticipant('Alice')])} />);
+    const heading = screen.getByRole('heading', { level: 2 });
+    expect(heading).toHaveAttribute('data-text-style', 'label-1');
   });
 
   it('does not show vote indicators during idle status', () => {
