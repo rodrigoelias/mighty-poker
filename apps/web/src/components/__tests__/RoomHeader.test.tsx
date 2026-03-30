@@ -93,7 +93,7 @@ describe('RoomHeader', () => {
     render(<RoomHeader {...defaultProps} roundStatus="idle" />);
     const badge = screen.getByTestId('bpk-badge');
     expect(badge).toHaveAttribute('data-type', 'normal');
-    expect(badge).toHaveTextContent('Waiting');
+    expect(badge).toHaveTextContent('Idle');
   });
 
   it('renders badge with brand type for voting status', () => {

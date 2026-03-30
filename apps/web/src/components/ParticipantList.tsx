@@ -103,7 +103,7 @@ export function ParticipantList({ participants, currentRound, currentParticipant
                     <BpkBadge type={BADGE_TYPES.brand}>facilitator</BpkBadge>
                   )}
                   {!p.connected && (
-                    <BpkBadge type={BADGE_TYPES.normal}>disconnected</BpkBadge>
+                    <BpkBadge type={BADGE_TYPES.normal}>offline</BpkBadge>
                   )}
                 </div>
               </div>

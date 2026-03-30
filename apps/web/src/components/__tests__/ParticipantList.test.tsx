@@ -177,7 +177,7 @@ describe('ParticipantList', () => {
     expect(badge.closest('[data-testid="bpk-badge"]')).toHaveAttribute('data-type', 'brand');
   });
 
-  it('shows "disconnected" badge when participant is not connected', () => {
+  it('shows "offline" badge when participant is not connected', () => {
     const participants = [makeParticipant({ id: 'p1', name: 'Alice', connected: false })];
 
     render(
@@ -188,7 +188,7 @@ describe('ParticipantList', () => {
       />,
     );
 
-    const badge = screen.getByText('disconnected');
+    const badge = screen.getByText('offline');
     expect(badge.closest('[data-testid="bpk-badge"]')).toHaveAttribute('data-type', 'normal');
   });
 

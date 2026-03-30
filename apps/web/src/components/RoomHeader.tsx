@@ -20,7 +20,7 @@ const badgeTypeMap: Record<RoundStatus, (typeof BADGE_TYPES)[keyof typeof BADGE_
 };
 
 const badgeLabelMap: Record<RoundStatus, string> = {
-  idle: 'Waiting',
+  idle: 'Idle',
   voting: 'Voting',
   revealed: 'Revealed',
 };
