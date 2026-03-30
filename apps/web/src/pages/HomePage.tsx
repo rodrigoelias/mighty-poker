@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BpkButton from '@skyscanner/backpack-web/bpk-component-button';
+import BpkText, { TEXT_STYLES } from '@skyscanner/backpack-web/bpk-component-text';
+import BpkInput from '@skyscanner/backpack-web/bpk-component-input';
+import BpkLabel from '@skyscanner/backpack-web/bpk-component-label';
+import BpkInfoBanner, { ALERT_TYPES } from '@skyscanner/backpack-web/bpk-component-info-banner';
+import { canvasDay, corePrimaryDay } from '@skyscanner/bpk-foundations-web/tokens/base.es6';
 import { createRoom } from '../lib/socket.js';
 import { useRoomStore } from '../stores/room-store.js';
 
@@ -31,50 +36,62 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-50 to-indigo-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md">
+    <div
+      className="min-h-screen flex items-center justify-center p-4"
+      style={{ backgroundColor: canvasDay }}
+    >
+      <div className="rounded-2xl shadow-lg p-8 w-full max-w-md" style={{ backgroundColor: '#fff' }}>
         <div className="text-center mb-8">
-          <div className="w-14 h-14 bg-violet-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-md">
-            <span className="text-2xl">♠</span>
+          <div
+            className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-md"
+            style={{ backgroundColor: corePrimaryDay }}
+          >
+            <span className="text-2xl text-white">&#9824;</span>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">Mighty Poker</h1>
-          <p className="text-gray-500 mt-1">Plan together, estimate better</p>
+          <BpkText textStyle={TEXT_STYLES.heading2} tagName="h1">
+            Mighty Poker
+          </BpkText>
+          <BpkText textStyle={TEXT_STYLES.bodyDefault} tagName="p" className="mt-1">
+            Plan together, estimate better
+          </BpkText>
         </div>
 
         <form onSubmit={handleCreate} className="space-y-4">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+            <BpkLabel htmlFor="name" className="mb-1">
               Your name
-            </label>
-            <input
+            </BpkLabel>
+            <BpkInput
               id="name"
+              name="name"
               type="text"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
               placeholder="Alice"
               required
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all"
             />
           </div>
           <div>
-            <label htmlFor="roomName" className="block text-sm font-medium text-gray-700 mb-1">
+            <BpkLabel htmlFor="roomName" className="mb-1">
               Room name
-            </label>
-            <input
+            </BpkLabel>
+            <BpkInput
               id="roomName"
+              name="roomName"
               type="text"
               value={roomName}
-              onChange={(e) => setRoomName(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRoomName(e.target.value)}
               placeholder="Sprint 42"
               required
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all"
             />
           </div>
 
           {error && (
-            <p role="alert" className="text-sm text-red-600 bg-red-50 rounded-lg px-4 py-2">
-              {error}
-            </p>
+            <BpkInfoBanner
+              type={ALERT_TYPES.ERROR}
+              message={error}
+              role="alert"
+            />
           )}
 
           <BpkButton
