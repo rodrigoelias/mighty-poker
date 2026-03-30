@@ -7,7 +7,7 @@ let socket: Socket | null = null;
 export const SOCKET_TIMEOUT = 5000;
 
 export function getSocket(token?: string): Socket {
-  if (socket) return socket; // BUG 4 FIX: return existing socket even during handshake
+  if (socket) return socket;
 
   socket = io('/rooms', {
     auth: token ? { token } : undefined,
@@ -23,7 +23,6 @@ export function disconnectSocket() {
   socket = null;
 }
 
-// BUG 3 FIX: helper that adds timeout + rejection to socket emits
 export function emitWithTimeout<T>(s: Socket, event: string, data: unknown): Promise<T> {
   return new Promise((resolve, reject) => {
     const timer = setTimeout(
@@ -73,10 +72,13 @@ export function startRound(roomId: string): Promise<{ error?: string }> {
 }
 
 export function castVote(roomId: string, value: string): Promise<{ error?: string }> {
-  // BUG 2 FIX: set pendingVote optimistically before emitting
   useRoomStore.getState().setPendingVote(value);
   const s = getSocket();
-  return emitWithTimeout<{ error?: string }>(s, 'vote:cast', { roomId, value });
+  return emitWithTimeout<{ error?: string }>(s, 'vote:cast', { roomId, value })
+    .catch((err) => {
+      useRoomStore.getState().setPendingVote(null);
+      throw err;
+    });
 }
 
 export function revealVotes(roomId: string): Promise<{ error?: string }> {

@@ -7,7 +7,7 @@ interface RoomStoreState {
   token: string | null;
   connected: boolean;
   error: string | null;
-  pendingVote: string | null; // BUG 2 FIX: optimistic vote state
+  pendingVote: string | null;
 
   // Actions
   setRoom: (room: RoomState) => void;
@@ -34,18 +34,22 @@ export const useRoomStore = create<RoomStoreState>((set, get) => ({
   ...initialState,
 
   setRoom: (room) => {
-    const { participantId, pendingVote } = get();
-    // BUG 2 FIX: clear pendingVote if server state reflects the vote
-    let nextPendingVote = pendingVote;
+    const { pendingVote, participantId } = get();
     if (pendingVote && participantId) {
+      if (room.currentRound.status !== 'voting') {
+        // Round ended or reset — clear optimistic vote
+        set({ room, pendingVote: null });
+        return;
+      }
       const serverVote = room.currentRound.votes.find(
         (v) => v.participantId === participantId,
       );
       if (serverVote?.value === pendingVote) {
-        nextPendingVote = null;
+        set({ room, pendingVote: null });
+        return;
       }
     }
-    set({ room, pendingVote: nextPendingVote });
+    set({ room });
   },
 
   setIdentity: (participantId, _roomId, token) => set({ participantId, token }),

@@ -1,16 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-
-// Mock socket.io-client before importing socket module
-const mockSocket = {
-  connected: false,
-  on: vi.fn().mockReturnThis(),
-  off: vi.fn().mockReturnThis(),
-  emit: vi.fn(),
-  disconnect: vi.fn(),
-};
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('socket.io-client', () => ({
-  io: vi.fn(() => ({ ...mockSocket, connected: false, on: vi.fn(), off: vi.fn(), emit: vi.fn(), disconnect: vi.fn() })),
+  io: vi.fn(() => ({ connected: false, on: vi.fn(), off: vi.fn(), emit: vi.fn(), disconnect: vi.fn() })),
 }));
 
 // Mock the room store
@@ -39,7 +30,7 @@ describe('socket', () => {
       expect(io).toHaveBeenCalledOnce();
     });
 
-    it('returns existing socket even if not yet connected (BUG 4 FIX)', () => {
+    it('returns existing socket even if not yet connected', () => {
       const first = getSocket();
       const second = getSocket();
       // io should only be called once — second call reuses existing socket
@@ -111,7 +102,7 @@ describe('socket', () => {
   });
 
   describe('castVote', () => {
-    it('sets pendingVote in store before emitting (BUG 2 FIX)', () => {
+    it('sets pendingVote in store before emitting', () => {
       const setPendingVote = vi.fn();
       vi.mocked(useRoomStore.getState).mockReturnValue({
         setPendingVote,
@@ -123,6 +114,28 @@ describe('socket', () => {
       castVote('room-1', '5').catch(() => {}); // ignore timeout rejection
 
       expect(setPendingVote).toHaveBeenCalledWith('5');
+    });
+
+    it('clears pendingVote when emit times out', async () => {
+      vi.useFakeTimers();
+      const setPendingVote = vi.fn();
+      vi.mocked(useRoomStore.getState).mockReturnValue({
+        setPendingVote,
+      } as any);
+
+      const promise = castVote('room-1', '5');
+
+      // First call sets the optimistic vote
+      expect(setPendingVote).toHaveBeenCalledWith('5');
+
+      vi.advanceTimersByTime(SOCKET_TIMEOUT);
+
+      await expect(promise).rejects.toThrow('timed out');
+
+      // Second call clears pendingVote on error
+      expect(setPendingVote).toHaveBeenCalledWith(null);
+
+      vi.useRealTimers();
     });
   });
 });
