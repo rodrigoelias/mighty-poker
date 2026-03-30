@@ -1,10 +1,11 @@
 import React from 'react';
 import type { Vote, Participant } from '@mighty-poker/core';
-import BpkText, { TEXT_STYLES } from '@skyscanner/backpack-web/bpk-component-text';
+import BpkText, { TEXT_STYLES, TEXT_COLORS } from '@skyscanner/backpack-web/bpk-component-text';
 import BpkBadge, { BADGE_TYPES } from '@skyscanner/backpack-web/bpk-component-badge';
 import BpkCard from '@skyscanner/backpack-web/bpk-component-card';
 import BpkInfoBanner, { ALERT_TYPES } from '@skyscanner/backpack-web/bpk-component-info-banner';
-import { coreAccentDay } from '@skyscanner/bpk-foundations-web/tokens/base.es6';
+import { textOnDarkDay } from '@skyscanner/bpk-foundations-web/tokens/base.es6';
+import { avatarColor, initials } from '../lib/avatar.js';
 
 interface Props {
   votes: Vote[];
@@ -52,10 +53,29 @@ export function RevealedResults({ votes, participants }: Props) {
                 <BpkText
                   textStyle={TEXT_STYLES.heading2}
                   tagName="span"
-                  style={{ color: coreAccentDay }}
+                  color={TEXT_COLORS.textHero}
                 >
                   {vote.value}
                 </BpkText>
+                {participant && (
+                  <div
+                    style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: '50%',
+                      backgroundColor: avatarColor(participant.name),
+                      color: textOnDarkDay,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 12,
+                      fontWeight: 700,
+                      flexShrink: 0,
+                    }}
+                  >
+                    {initials(participant.name)}
+                  </div>
+                )}
                 <div className="min-w-0">
                   <BpkText tagName="p" className="truncate">
                     {participant?.name ?? 'Unknown'}

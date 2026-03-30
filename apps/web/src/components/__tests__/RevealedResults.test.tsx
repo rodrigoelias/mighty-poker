@@ -12,22 +12,29 @@ vi.mock('@skyscanner/backpack-web/bpk-component-text', () => {
     caption: 'caption',
   } as const;
 
+  const TEXT_COLORS = {
+    textHero: 'text-hero',
+    textOnDark: 'text-on-dark',
+    textError: 'text-error',
+  } as const;
+
   const BpkText = (props: {
     textStyle?: string;
     tagName?: string;
     children: React.ReactNode;
     style?: React.CSSProperties;
     className?: string;
+    color?: string;
   }) => {
     const Tag = (props.tagName || 'span') as keyof JSX.IntrinsicElements;
     return (
-      <Tag data-testid="bpk-text" data-style={props.textStyle} style={props.style}>
+      <Tag data-testid="bpk-text" data-style={props.textStyle} data-color={props.color} style={props.style}>
         {props.children}
       </Tag>
     );
   };
 
-  return { default: BpkText, TEXT_STYLES };
+  return { default: BpkText, TEXT_STYLES, TEXT_COLORS };
 });
 
 vi.mock('@skyscanner/backpack-web/bpk-component-badge', () => {
@@ -84,6 +91,14 @@ vi.mock('@skyscanner/backpack-web/bpk-component-info-banner', () => {
 
 vi.mock('@skyscanner/bpk-foundations-web/tokens/base.es6', () => ({
   coreAccentDay: 'rgb(0, 98, 227)',
+  corePrimaryDay: '#024',
+  coreEcoDay: '#0fa',
+  statusSuccessSpotDay: '#0d0',
+  statusDangerSpotDay: '#d00',
+  statusWarningSpotDay: '#fa0',
+  textErrorDay: '#c00',
+  textSecondaryDay: '#666',
+  textOnDarkDay: '#fff',
 }));
 
 afterEach(() => {
@@ -95,6 +110,16 @@ function makeVotes(values: string[]): Vote[] {
     participantId: `p${i}`,
     value,
   }));
+}
+
+function makeParticipant(name: string, overrides?: Partial<Participant>): Participant {
+  return {
+    id: 'p0',
+    name,
+    role: 'voter' as const,
+    connected: true,
+    ...overrides,
+  };
 }
 
 function makeParticipants(
@@ -186,6 +211,13 @@ describe('RevealedResults', () => {
       render(<RevealedResults votes={votes} participants={[]} />);
 
       expect(screen.getByText('Unknown')).toBeInTheDocument();
+    });
+
+    it('renders participant avatars next to vote values', () => {
+      const votes = [{ participantId: 'p1', value: '5' }];
+      const participants = [makeParticipant('Alice Baker', { id: 'p1' })];
+      render(<RevealedResults votes={votes} participants={participants} />);
+      expect(screen.getByText('AB')).toBeInTheDocument(); // two-letter initials
     });
   });
 
