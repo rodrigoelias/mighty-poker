@@ -62,8 +62,8 @@ export function ParticipantList({ participants, currentRound, currentParticipant
                 {initials(p.name)}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <BpkText tagName="span">{p.name}</BpkText>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <BpkText tagName="span" className="truncate">{p.name}</BpkText>
                   {isMe && (
                     <BpkText
                       textStyle={TEXT_STYLES.caption}

@@ -1,2 +1,440 @@
 @tailwind components;
 @tailwind utilities;
+
+/* ========================================
+   MIGHTY POKER — THEME OVERRIDE
+   ======================================== */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --mp-primary: #6366f1;
+  --mp-primary-dark: #4f46e5;
+  --mp-primary-light: #818cf8;
+  --mp-accent: #f59e0b;
+  --mp-accent-light: #fbbf24;
+  --mp-bg: #0f172a;
+  --mp-bg-surface: #1e293b;
+  --mp-bg-card: #1e293b;
+  --mp-bg-card-hover: #334155;
+  --mp-text: #f1f5f9;
+  --mp-text-muted: #94a3b8;
+  --mp-text-dim: #64748b;
+  --mp-border: #334155;
+  --mp-success: #22c55e;
+  --mp-glow: rgba(99, 102, 241, 0.3);
+  --mp-radius: 16px;
+  --mp-radius-sm: 10px;
+  --mp-shadow: 0 4px 6px -1px rgba(0,0,0,0.3), 0 2px 4px -2px rgba(0,0,0,0.2);
+  --mp-shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.4), 0 8px 10px -6px rgba(0,0,0,0.3);
+  --mp-shadow-glow: 0 0 20px var(--mp-glow);
+}
+
+* {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+}
+
+body {
+  background: #0f172a !important;
+}
+
+/* === PAGE BACKGROUND === */
+#root > div,
+.min-h-screen {
+  background: linear-gradient(135deg, #0f172a 0%, #1a1a2e 50%, #16213e 100%) !important;
+  min-height: 100vh;
+}
+
+/* === NAVIGATION BAR === */
+nav[class*="bpk-navigation-bar"] {
+  background: rgba(15, 23, 42, 0.8) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-bottom: 1px solid rgba(99, 102, 241, 0.2) !important;
+  padding: 12px 24px !important;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3) !important;
+}
+
+nav span[class*="bpk-text"] {
+  color: #f1f5f9 !important;
+  font-weight: 700 !important;
+  font-size: 18px !important;
+  letter-spacing: 0.5px !important;
+  background: linear-gradient(135deg, #818cf8, #c084fc) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+/* === HEADER === */
+header {
+  background: linear-gradient(135deg, var(--mp-primary) 0%, #7c3aed 50%, #a855f7 100%) !important;
+  padding: 20px 32px !important;
+  border-bottom: none !important;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(99, 102, 241, 0.3) !important;
+}
+
+header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 30% 50%, rgba(255,255,255,0.08) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+header h1 {
+  font-size: 28px !important;
+  font-weight: 800 !important;
+  color: white !important;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.2) !important;
+  letter-spacing: -0.5px !important;
+}
+
+header [class*="bpk-text--text-on-dark"] {
+  color: rgba(255,255,255,0.95) !important;
+}
+
+/* Status badges in header */
+header .flex.items-center.gap-2 > * {
+  background: rgba(255, 255, 255, 0.15) !important;
+  color: white !important;
+  padding: 4px 12px !important;
+  border-radius: 20px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+/* === INVITE BUTTON === */
+button[class*="bpk-button"] {
+  background: rgba(255, 255, 255, 0.15) !important;
+  color: white !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: 12px !important;
+  padding: 10px 20px !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  letter-spacing: 0.3px !important;
+  backdrop-filter: blur(10px) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
+}
+
+button[class*="bpk-button"]:hover {
+  background: rgba(255, 255, 255, 0.25) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.3) !important;
+}
+
+/* === MAIN CONTENT === */
+main {
+  padding: 32px !important;
+  gap: 28px !important;
+  max-width: 1200px !important;
+}
+
+main.grid {
+  grid-template-columns: 320px 1fr !important;
+}
+
+/* === CARDS (GENERAL) === */
+[class*="bpk-card"] {
+  background: var(--mp-bg-card) !important;
+  border: 1px solid var(--mp-border) !important;
+  border-radius: var(--mp-radius) !important;
+  box-shadow: var(--mp-shadow-lg) !important;
+  padding: 24px !important;
+  transition: all 0.3s ease !important;
+}
+
+[class*="bpk-card"]:hover {
+  border-color: rgba(99, 102, 241, 0.3) !important;
+  box-shadow: var(--mp-shadow-lg), var(--mp-shadow-glow) !important;
+}
+
+/* === PARTICIPANTS SECTION === */
+aside h2,
+aside [class*="heading"] {
+  color: var(--mp-text) !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1.5px !important;
+  margin-bottom: 16px !important;
+  padding-bottom: 12px !important;
+  border-bottom: 2px solid var(--mp-border) !important;
+}
+
+aside ul {
+  padding-left: 0 !important;
+}
+
+aside li {
+  padding: 12px 14px !important;
+  border-radius: var(--mp-radius-sm) !important;
+  margin-bottom: 8px !important;
+  transition: all 0.2s ease !important;
+  background: rgba(30, 41, 59, 0.5) !important;
+  border: 1px solid transparent !important;
+}
+
+aside li:hover {
+  background: var(--mp-bg-card-hover) !important;
+  border-color: var(--mp-border) !important;
+}
+
+aside li span,
+aside li div {
+  color: var(--mp-text) !important;
+}
+
+/* Inner card within participant list */
+aside li [class*="bpk-card"] {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+/* Prevent badge from overflowing into vote indicator */
+aside li .flex-1.min-w-0 {
+  overflow: hidden !important;
+}
+
+/* Facilitator badge */
+span[class*="bpk-badge--brand"] {
+  background: linear-gradient(135deg, var(--mp-accent), #f97316) !important;
+  color: #0f172a !important;
+  padding: 2px 10px !important;
+  border-radius: 6px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+/* Offline badge */
+span[class*="bpk-badge--normal"] {
+  background: rgba(100, 116, 139, 0.3) !important;
+  color: var(--mp-text-dim) !important;
+  padding: 2px 8px !important;
+  border-radius: 6px !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+}
+
+/* (you) indicator — subtle, not a badge */
+span[class*="bpk-text--caption"][class*="bpk-text--text-hero"] {
+  background: transparent !important;
+  color: var(--mp-primary-light) !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+}
+
+/* Avatar circles */
+aside .w-12.h-12 {
+  border-radius: 50% !important;
+  font-weight: 700 !important;
+  font-size: 16px !important;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2) !important;
+}
+
+/* Vote placeholder card */
+aside .w-7.h-9 {
+  border: 2px dashed var(--mp-text-dim) !important;
+  border-radius: 6px !important;
+  opacity: 0.4 !important;
+  background: transparent !important;
+}
+
+/* === INFO BANNER FIX === */
+/* BpkInfoBanner has a light background, so text must be dark */
+[class*="bpk-info-banner"],
+[class*="bpk-info-banner"] span,
+[class*="bpk-info-banner"] div {
+  color: #161616 !important;
+}
+
+/* === ESTIMATION SECTION === */
+section h2,
+section [class*="heading"] {
+  color: var(--mp-text) !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 2px !important;
+  text-align: center !important;
+  margin-bottom: 8px !important;
+}
+
+section [class*="bpk-card"] {
+  padding: 28px 20px !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+section [class*="bpk-card"]::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0; left: 0; right: 0; bottom: 0 !important;
+  background: radial-gradient(circle at 80% 20%, rgba(99, 102, 241, 0.04) 0%, transparent 50%) !important;
+  pointer-events: none !important;
+  border-radius: inherit !important;
+}
+
+/* Heading underline accent */
+section > [class*="bpk-card"] > div > h2::after {
+  display: block !important;
+  content: '' !important;
+  width: 60px !important;
+  height: 3px !important;
+  background: linear-gradient(90deg, var(--mp-primary), var(--mp-primary-light)) !important;
+  border-radius: 2px !important;
+  margin: 10px auto 0 !important;
+}
+
+/* Estimation cards container */
+[role="radiogroup"] {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  gap: 10px !important;
+  justify-content: center !important;
+  padding: 12px 0 !important;
+}
+
+/* Individual estimation cards */
+label[class*="bpk-checkbox-card"] {
+  background: var(--mp-bg-surface) !important;
+  border: 2px solid var(--mp-border) !important;
+  border-radius: 14px !important;
+  width: 56px !important;
+  height: 78px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative !important;
+  overflow: hidden !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
+}
+
+label[class*="bpk-checkbox-card"]::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(168, 85, 247, 0.05)) !important;
+  opacity: 0 !important;
+  transition: opacity 0.3s ease !important;
+}
+
+/* Remove any ::after artifacts inside cards */
+label[class*="bpk-checkbox-card"]::after,
+label[class*="bpk-checkbox-card"] *::after,
+div[class*="bpk-checkbox-card-content"]::after,
+div[class*="bpk-checkbox-card-label"]::after {
+  display: none !important;
+  content: none !important;
+}
+
+label[class*="bpk-checkbox-card"]:hover {
+  border-color: var(--mp-primary) !important;
+  transform: translateY(-4px) scale(1.05) !important;
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3), 0 0 0 1px var(--mp-primary) !important;
+  background: var(--mp-bg-card-hover) !important;
+}
+
+label[class*="bpk-checkbox-card"]:hover::before {
+  opacity: 1 !important;
+}
+
+label[class*="bpk-checkbox-card"]:active {
+  transform: translateY(-1px) scale(1.02) !important;
+}
+
+/* Card numbers */
+label[class*="bpk-checkbox-card"] span,
+label[class*="bpk-checkbox-card"] div {
+  color: var(--mp-text) !important;
+  font-size: 22px !important;
+  font-weight: 700 !important;
+  z-index: 1 !important;
+  position: relative !important;
+}
+
+/* Selected card state */
+label[class*="bpk-checkbox-card"]:has(input:checked) {
+  background: linear-gradient(135deg, var(--mp-primary), #7c3aed) !important;
+  border-color: var(--mp-primary-light) !important;
+  box-shadow: 0 8px 30px rgba(99, 102, 241, 0.4), 0 0 0 2px rgba(129, 140, 248, 0.3) !important;
+  transform: translateY(-2px) !important;
+  animation: selectPulse 0.6s ease-out !important;
+}
+
+label[class*="bpk-checkbox-card"]:has(input:checked) span,
+label[class*="bpk-checkbox-card"]:has(input:checked) div {
+  color: white !important;
+  font-weight: 800 !important;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
+}
+
+/* Help text */
+section p,
+section [class*="text--caption"] {
+  color: var(--mp-text-muted) !important;
+  font-size: 13px !important;
+  text-align: center !important;
+}
+
+/* General text color */
+p, span, div, h1, h2, h3, h4, h5, h6 {
+  color: var(--mp-text);
+}
+
+.text-gray-500, .text-gray-400, [class*="muted"] {
+  color: var(--mp-text-muted) !important;
+}
+
+/* === ANIMATIONS === */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes selectPulse {
+  0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+}
+
+aside, section {
+  animation: fadeInUp 0.5s ease-out !important;
+}
+
+section {
+  animation-delay: 0.1s !important;
+}
+
+/* === SCROLLBAR === */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--mp-bg); }
+::-webkit-scrollbar-thumb { background: var(--mp-border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--mp-text-dim); }
+
+/* === SMOOTH TRANSITIONS === */
+* {
+  transition-property: background-color, border-color, color, box-shadow, transform, opacity;
+  transition-duration: 0.2s;
+  transition-timing-function: ease;
+}
