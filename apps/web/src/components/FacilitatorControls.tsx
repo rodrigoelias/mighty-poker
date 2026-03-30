@@ -1,4 +1,5 @@
 import React from 'react';
+import BpkButton, { BUTTON_TYPES } from '@skyscanner/backpack-web/bpk-component-button';
 import type { RoundStatus } from '@mighty-poker/core';
 
 interface Props {
@@ -12,28 +13,19 @@ export function FacilitatorControls({ roundStatus, onStart, onReveal, onReset }:
   return (
     <div className="flex gap-3 justify-center">
       {roundStatus === 'idle' && (
-        <button
-          onClick={onStart}
-          className="px-6 py-2.5 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-xl shadow-sm transition-colors"
-        >
+        <BpkButton type={BUTTON_TYPES.primary} onClick={onStart}>
           Start Voting
-        </button>
+        </BpkButton>
       )}
       {roundStatus === 'voting' && (
-        <button
-          onClick={onReveal}
-          className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow-sm transition-colors"
-        >
+        <BpkButton type={BUTTON_TYPES.secondary} onClick={onReveal}>
           Reveal Votes
-        </button>
+        </BpkButton>
       )}
       {roundStatus === 'revealed' && (
-        <button
-          onClick={onReset}
-          className="px-6 py-2.5 bg-gray-700 hover:bg-gray-800 text-white font-semibold rounded-xl shadow-sm transition-colors"
-        >
+        <BpkButton type={BUTTON_TYPES.secondary} onClick={onReset}>
           New Round
-        </button>
+        </BpkButton>
       )}
     </div>
   );
