@@ -12,6 +12,7 @@ import { CardDeck } from '../components/CardDeck.js';
 import { RevealedResults } from '../components/RevealedResults.js';
 import { FacilitatorControls } from '../components/FacilitatorControls.js';
 import { ConnectionBanner } from '../components/ConnectionBanner.js';
+import { AppNavBar } from '../components/AppNavBar.js';
 
 export default function RoomPage() {
   const { roomId } = useParams<{ roomId: string }>();
@@ -33,11 +34,11 @@ export default function RoomPage() {
 
   if (!room) {
     return (
-      <div
-        className="min-h-screen flex items-center justify-center"
-        style={{ backgroundColor: canvasContrastDay }}
-      >
-        <BpkSpinner type={SPINNER_TYPES.primary} />
+      <div className="min-h-screen flex flex-col" style={{ backgroundColor: canvasContrastDay }}>
+        <AppNavBar />
+        <div className="flex-1 flex items-center justify-center">
+          <BpkSpinner type={SPINNER_TYPES.primary} />
+        </div>
       </div>
     );
   }
@@ -51,6 +52,7 @@ export default function RoomPage() {
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: canvasContrastDay }}>
       <ConnectionBanner connected={connected} />
+      <AppNavBar />
       <RoomHeader
         roomName={room.name}
         roomId={room.id}

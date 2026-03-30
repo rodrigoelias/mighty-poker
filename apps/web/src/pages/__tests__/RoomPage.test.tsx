@@ -57,6 +57,10 @@ vi.mock('../../components/FacilitatorControls.js', () => ({
   FacilitatorControls: () => <div data-testid="facilitator-controls" />,
 }));
 
+vi.mock('../../components/AppNavBar', () => ({
+  AppNavBar: () => <nav data-testid="app-nav-bar">Mighty Poker</nav>,
+}));
+
 // Backpack component mocks
 vi.mock('@skyscanner/backpack-web/bpk-component-text', () => {
   const TEXT_STYLES = {
@@ -284,5 +288,11 @@ describe('RoomPage', () => {
 
     const controls = screen.getByTestId('facilitator-controls');
     expect(controls.closest('[data-testid="bpk-card"]')).toBeTruthy();
+  });
+
+  it('renders the AppNavBar', () => {
+    setStore({ room: makeRoom() });
+    render(<RoomPage />);
+    expect(screen.getByTestId('app-nav-bar')).toBeInTheDocument();
   });
 });
