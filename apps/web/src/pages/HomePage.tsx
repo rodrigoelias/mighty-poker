@@ -5,7 +5,8 @@ import BpkText, { TEXT_STYLES } from '@skyscanner/backpack-web/bpk-component-tex
 import BpkInput from '@skyscanner/backpack-web/bpk-component-input';
 import BpkLabel from '@skyscanner/backpack-web/bpk-component-label';
 import BpkInfoBanner, { ALERT_TYPES } from '@skyscanner/backpack-web/bpk-component-info-banner';
-import { canvasContrastDay, surfaceHeroDay, surfaceDefaultDay, textOnDarkDay } from '@skyscanner/bpk-foundations-web/tokens/base.es6';
+import { canvasContrastDay, surfaceHeroDay, surfaceDefaultDay, textOnDarkDay, boxShadowLg, boxShadowSm, borderRadiusLg, borderRadiusMd } from '@skyscanner/bpk-foundations-web/tokens/base.es6';
+import { AppNavBar } from '../components/AppNavBar.js';
 import { createRoom } from '../lib/socket.js';
 import { useRoomStore } from '../stores/room-store.js';
 
@@ -51,77 +52,77 @@ export default function HomePage() {
   }
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center p-4"
-      style={{ backgroundColor: canvasContrastDay }}
-    >
-      <div className="p-8 w-full max-w-md" style={{ backgroundColor: surfaceDefaultDay, borderRadius: '1rem', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1)' }}>
-        <div className="text-center mb-8">
-          <div
-            className="w-14 h-14 flex items-center justify-center mx-auto mb-4"
-            style={{ backgroundColor: surfaceHeroDay, borderRadius: '1rem', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}
-          >
-            <span style={{ color: textOnDarkDay, fontSize: '1.5rem' }}>&#9824;</span>
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: canvasContrastDay }}>
+      <AppNavBar />
+      <div className="flex-1 flex items-center justify-center p-4">
+        <div className="p-8 w-full max-w-md" style={{ backgroundColor: surfaceDefaultDay, borderRadius: borderRadiusLg, boxShadow: boxShadowLg }}>
+          <div className="text-center mb-8">
+            <div
+              className="w-14 h-14 flex items-center justify-center mx-auto mb-4"
+              style={{ backgroundColor: surfaceHeroDay, borderRadius: borderRadiusMd, boxShadow: boxShadowSm }}
+            >
+              <span style={{ color: textOnDarkDay, fontSize: '1.5rem' }}>&#9824;</span>
+            </div>
+            <BpkText textStyle={TEXT_STYLES.heading2} tagName="h1">
+              Mighty Poker
+            </BpkText>
+            <BpkText textStyle={TEXT_STYLES.bodyDefault} tagName="p" className="mt-1">
+              Plan together, estimate better
+            </BpkText>
           </div>
-          <BpkText textStyle={TEXT_STYLES.heading2} tagName="h1">
-            Mighty Poker
-          </BpkText>
-          <BpkText textStyle={TEXT_STYLES.bodyDefault} tagName="p" className="mt-1">
-            Plan together, estimate better
-          </BpkText>
+
+          <form onSubmit={handleCreate} className="space-y-4">
+            <div>
+              <BpkLabel htmlFor="name" className="mb-1">
+                Your name
+              </BpkLabel>
+              <BpkInput
+                id="name"
+                name="name"
+                type="text"
+                value={name}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
+                onBlur={() => handleBlur('name')}
+                valid={getValid('name', name)}
+                placeholder="Alice"
+                required
+              />
+            </div>
+            <div>
+              <BpkLabel htmlFor="roomName" className="mb-1">
+                Room name
+              </BpkLabel>
+              <BpkInput
+                id="roomName"
+                name="roomName"
+                type="text"
+                value={roomName}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRoomName(e.target.value)}
+                onBlur={() => handleBlur('roomName')}
+                valid={getValid('roomName', roomName)}
+                placeholder="Sprint 42"
+                required
+              />
+            </div>
+
+            {error && (
+              <BpkInfoBanner
+                type={ALERT_TYPES.ERROR}
+                message={error}
+                role="alert"
+              />
+            )}
+
+            <BpkButton
+              submit
+              disabled={loading || !name.trim() || !roomName.trim()}
+              loading={loading}
+              fullWidth
+            >
+              Create Room
+            </BpkButton>
+          </form>
         </div>
-
-        <form onSubmit={handleCreate} className="space-y-4">
-          <div>
-            <BpkLabel htmlFor="name" className="mb-1">
-              Your name
-            </BpkLabel>
-            <BpkInput
-              id="name"
-              name="name"
-              type="text"
-              value={name}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
-              onBlur={() => handleBlur('name')}
-              valid={getValid('name', name)}
-              placeholder="Alice"
-              required
-            />
-          </div>
-          <div>
-            <BpkLabel htmlFor="roomName" className="mb-1">
-              Room name
-            </BpkLabel>
-            <BpkInput
-              id="roomName"
-              name="roomName"
-              type="text"
-              value={roomName}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRoomName(e.target.value)}
-              onBlur={() => handleBlur('roomName')}
-              valid={getValid('roomName', roomName)}
-              placeholder="Sprint 42"
-              required
-            />
-          </div>
-
-          {error && (
-            <BpkInfoBanner
-              type={ALERT_TYPES.ERROR}
-              message={error}
-              role="alert"
-            />
-          )}
-
-          <BpkButton
-            submit
-            disabled={loading || !name.trim() || !roomName.trim()}
-            loading={loading}
-            fullWidth
-          >
-            Create Room
-          </BpkButton>
-        </form>
       </div>
     </div>
   );

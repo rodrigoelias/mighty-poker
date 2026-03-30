@@ -111,17 +111,30 @@ vi.mock('@skyscanner/backpack-web/bpk-component-info-banner', () => {
   return { default: BpkInfoBanner, ALERT_TYPES };
 });
 
+vi.mock('../../components/AppNavBar', () => ({
+  AppNavBar: () => <nav data-testid="app-nav-bar">Mighty Poker</nav>,
+}));
+
 vi.mock('@skyscanner/bpk-foundations-web/tokens/base.es6', () => ({
   canvasContrastDay: 'rgb(239, 243, 248)',
   surfaceHeroDay: 'rgb(0, 98, 227)',
   surfaceDefaultDay: 'rgb(255, 255, 255)',
   textOnDarkDay: 'rgb(255, 255, 255)',
+  boxShadowLg: '0px 4px 14px 0px rgba(37,32,31,.25)',
+  boxShadowSm: '0px 1px 3px 0px rgba(37,32,31,.3)',
+  borderRadiusLg: '1.5rem',
+  borderRadiusMd: '0.75rem',
 }));
 
 describe('HomePage', () => {
   afterEach(() => {
     cleanup();
     vi.clearAllMocks();
+  });
+
+  it('renders the AppNavBar', () => {
+    render(<HomePage />);
+    expect(screen.getByTestId('app-nav-bar')).toBeInTheDocument();
   });
 
   it('renders form with name and room name inputs', () => {
@@ -134,7 +147,7 @@ describe('HomePage', () => {
   it('renders the title and subtitle', () => {
     render(<HomePage />);
 
-    expect(screen.getByText('Mighty Poker')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Mighty Poker' })).toBeInTheDocument();
     expect(
       screen.getByText('Plan together, estimate better'),
     ).toBeInTheDocument();
