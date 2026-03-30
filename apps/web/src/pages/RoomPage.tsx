@@ -94,7 +94,7 @@ export default function RoomPage() {
                 deck={room.deck}
                 selectedValue={currentVote}
                 disabled={false}
-                onSelect={(value) => roomId && castVote(roomId, value)}
+                onSelect={(value) => roomId && value && castVote(roomId, value)}
               />
             </BpkCard>
           )}

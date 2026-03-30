@@ -1,124 +1,134 @@
-import { describe, it, expect, vi, afterEach } from 'vitest';
-import { render, screen, cleanup, fireEvent } from '@testing-library/react';
-import { CardDeck } from '../CardDeck';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
 
-vi.mock('@skyscanner/backpack-web/bpk-component-text', () => {
-  const TEXT_STYLES = {
-    caption: 'caption',
-    bodyDefault: 'body-default',
-  } as const;
-
-  const BpkText = (props: {
-    textStyle?: string;
-    tagName?: string;
+vi.mock('@skyscanner/backpack-web/bpk-component-checkbox-card', () => {
+  const Root = (props: {
+    checked?: boolean;
+    onCheckedChange?: (checked: boolean) => void;
+    disabled?: boolean;
+    variant?: string;
+    radius?: string;
+    value?: string;
+    'aria-label'?: string;
     children: React.ReactNode;
-    style?: React.CSSProperties;
-    className?: string;
-  }) => {
-    const Tag = (props.tagName || 'span') as keyof JSX.IntrinsicElements;
-    return (
-      <Tag data-testid="bpk-text" data-style={props.textStyle} style={props.style} className={props.className}>
-        {props.children}
-      </Tag>
-    );
-  };
+  }) => (
+    <label
+      data-testid={`card-${props.value}`}
+      data-state={props.checked ? 'checked' : 'unchecked'}
+      data-disabled={props.disabled || undefined}
+      data-variant={props.variant}
+    >
+      <input
+        type="checkbox"
+        checked={props.checked}
+        disabled={props.disabled}
+        onChange={() => props.onCheckedChange?.(!props.checked)}
+        aria-label={props['aria-label'] || props.value}
+      />
+      {props.children}
+    </label>
+  );
+  const HiddenInput = () => null;
+  const Content = ({ children }: { children: React.ReactNode }) => <div>{children}</div>;
+  const Label = ({ children }: { children: string; textStyle?: string }) => <span>{children}</span>;
 
-  return { default: BpkText, TEXT_STYLES };
+  const BpkCheckboxCard = Object.assign(Root, { Root, HiddenInput, Content, Label });
+  return {
+    default: BpkCheckboxCard,
+    BpkCheckboxCard,
+    CHECKBOX_CARD_VARIANTS: {
+      onCanvasDefault: 'on-canvas-default',
+      onCanvasContrast: 'on-canvas-contrast',
+      onSurfaceContrast: 'on-surface-contrast',
+      cars: 'cars',
+    },
+    CHECKBOX_CARD_RADIUS: { square: 'square', rounded: 'rounded' },
+  };
 });
 
-vi.mock('@skyscanner/bpk-foundations-web/tokens/base.es6', () => ({
-  coreAccentDay: 'rgb(0, 98, 227)',
-  surfaceDefaultDay: 'rgb(255, 255, 255)',
-  surfaceHighlightDay: 'rgb(224, 228, 233)',
-  lineDay: 'rgb(193, 199, 207)',
-  textPrimaryDay: 'rgb(22, 22, 22)',
-  textDisabledDay: 'rgba(0, 0, 0, 0.2)',
-  textOnDarkDay: 'rgb(255, 255, 255)',
-}));
+vi.mock('@skyscanner/backpack-web/bpk-component-text', () => {
+  const BpkText = (props: { children: React.ReactNode; tagName?: string; textStyle?: string; color?: string }) => {
+    const Tag = (props.tagName || 'span') as keyof JSX.IntrinsicElements;
+    return <Tag data-text-style={props.textStyle} data-color={props.color}>{props.children}</Tag>;
+  };
+  return {
+    default: BpkText,
+    TEXT_STYLES: { heading4: 'heading-4', label1: 'label-1', caption: 'caption' },
+    TEXT_COLORS: { textHero: 'text-hero' },
+  };
+});
 
-const defaultProps = {
-  deck: ['1', '2', '3', '5', '8'],
-  selectedValue: null,
-  disabled: false,
-  onSelect: vi.fn(),
-};
+import { CardDeck } from '../CardDeck';
+
+const defaultDeck = ['1', '2', '3', '5', '8', '13', '21', '?', '☕'];
 
 describe('CardDeck', () => {
-  afterEach(() => {
-    cleanup();
-    vi.clearAllMocks();
-  });
-
-  it('renders all deck values as buttons', () => {
-    render(<CardDeck {...defaultProps} />);
-    const buttons = screen.getAllByRole('button');
-    expect(buttons).toHaveLength(5);
-    expect(buttons[0]).toHaveTextContent('1');
-    expect(buttons[1]).toHaveTextContent('2');
-    expect(buttons[2]).toHaveTextContent('3');
-    expect(buttons[3]).toHaveTextContent('5');
-    expect(buttons[4]).toHaveTextContent('8');
-  });
-
-  it('selected card has aria-pressed=true', () => {
-    render(<CardDeck {...defaultProps} selectedValue="3" />);
-    const buttons = screen.getAllByRole('button');
-    const selectedButton = buttons.find((b) => b.textContent === '3');
-    expect(selectedButton).toHaveAttribute('aria-pressed', 'true');
-  });
-
-  it('non-selected cards have aria-pressed=false', () => {
-    render(<CardDeck {...defaultProps} selectedValue="3" />);
-    const buttons = screen.getAllByRole('button');
-    const nonSelectedButtons = buttons.filter((b) => b.textContent !== '3');
-    nonSelectedButtons.forEach((button) => {
-      expect(button).toHaveAttribute('aria-pressed', 'false');
+  it('renders all deck values as checkbox cards', () => {
+    render(<CardDeck deck={defaultDeck} selectedValue={null} disabled={false} onSelect={vi.fn()} />);
+    defaultDeck.forEach((value) => {
+      expect(screen.getByTestId(`card-${value}`)).toBeInTheDocument();
     });
   });
 
-  it('disabled cards are disabled', () => {
-    render(<CardDeck {...defaultProps} disabled={true} />);
-    const buttons = screen.getAllByRole('button');
-    buttons.forEach((button) => {
-      expect(button).toBeDisabled();
-    });
+  it('marks selected card as checked', () => {
+    render(<CardDeck deck={defaultDeck} selectedValue="5" disabled={false} onSelect={vi.fn()} />);
+    expect(screen.getByTestId('card-5')).toHaveAttribute('data-state', 'checked');
+    expect(screen.getByTestId('card-3')).toHaveAttribute('data-state', 'unchecked');
   });
 
-  it('clicking a card calls onSelect with the value', () => {
+  it('calls onSelect with the value when a card is checked', () => {
     const onSelect = vi.fn();
-    render(<CardDeck {...defaultProps} onSelect={onSelect} />);
-    fireEvent.click(screen.getByText('5'));
-    expect(onSelect).toHaveBeenCalledWith('5');
-    expect(onSelect).toHaveBeenCalledTimes(1);
+    render(<CardDeck deck={defaultDeck} selectedValue={null} disabled={false} onSelect={onSelect} />);
+    const checkbox = screen.getByTestId('card-3').querySelector('input');
+    fireEvent.click(checkbox!);
+    expect(onSelect).toHaveBeenCalledWith('3');
   });
 
-  it('selection feedback text shows when a value is selected', () => {
-    render(<CardDeck {...defaultProps} selectedValue="8" />);
+  it('calls onSelect with null when a selected card is unchecked (deselection)', () => {
+    const onSelect = vi.fn();
+    render(<CardDeck deck={defaultDeck} selectedValue="5" disabled={false} onSelect={onSelect} />);
+    const checkbox = screen.getByTestId('card-5').querySelector('input');
+    fireEvent.click(checkbox!);
+    expect(onSelect).toHaveBeenCalledWith(null);
+  });
+
+  it('disables all cards when disabled prop is true', () => {
+    render(<CardDeck deck={defaultDeck} selectedValue={null} disabled={true} onSelect={vi.fn()} />);
+    defaultDeck.forEach((value) => {
+      expect(screen.getByTestId(`card-${value}`)).toHaveAttribute('data-disabled');
+    });
+  });
+
+  it('renders container with radiogroup role', () => {
+    render(<CardDeck deck={defaultDeck} selectedValue={null} disabled={false} onSelect={vi.fn()} />);
+    expect(screen.getByRole('radiogroup')).toBeInTheDocument();
+  });
+
+  it('uses onCanvasDefault variant', () => {
+    render(<CardDeck deck={defaultDeck} selectedValue={null} disabled={false} onSelect={vi.fn()} />);
+    expect(screen.getByTestId('card-1')).toHaveAttribute('data-variant', 'on-canvas-default');
+  });
+
+  it('renders selection feedback when a card is selected', () => {
+    render(<CardDeck deck={defaultDeck} selectedValue="8" disabled={false} onSelect={vi.fn()} />);
     expect(screen.getByText(/You selected/)).toBeInTheDocument();
-    expect(screen.getByText(/click another card to change/)).toBeInTheDocument();
+    const feedbackText = screen.getByText(/You selected/).closest('p');
+    expect(feedbackText).toHaveTextContent('8');
   });
 
-  it('selection feedback text does not show when no value is selected', () => {
-    render(<CardDeck {...defaultProps} selectedValue={null} />);
-    expect(screen.queryByText(/click another card to change/)).not.toBeInTheDocument();
-  });
-
-  it('renders heading with BpkText caption style', () => {
-    render(<CardDeck {...defaultProps} />);
-    expect(screen.getByText('Choose your estimate')).toBeInTheDocument();
+  it('renders heading with label1 text style', () => {
+    render(<CardDeck deck={defaultDeck} selectedValue={null} disabled={false} onSelect={vi.fn()} />);
     const heading = screen.getByRole('heading', { level: 2 });
-    expect(heading).toHaveTextContent('Choose your estimate');
+    expect(heading).toHaveAttribute('data-text-style', 'label-1');
   });
 
-  it('applies selected style to selected button', () => {
-    render(<CardDeck {...defaultProps} selectedValue="2" />);
-    const selectedButton = screen.getAllByRole('button').find((b) => b.textContent === '2');
-    expect(selectedButton).toHaveStyle({ backgroundColor: 'rgb(0, 98, 227)', color: 'rgb(255, 255, 255)' });
+  it('provides aria-label for ? card', () => {
+    render(<CardDeck deck={defaultDeck} selectedValue={null} disabled={false} onSelect={vi.fn()} />);
+    expect(screen.getByLabelText('Pass')).toBeInTheDocument();
   });
 
-  it('applies disabled style to disabled buttons', () => {
-    render(<CardDeck {...defaultProps} disabled={true} />);
-    const button = screen.getAllByRole('button')[0];
-    expect(button).toHaveStyle({ backgroundColor: 'rgb(224, 228, 233)' });
+  it('provides aria-label for coffee card', () => {
+    render(<CardDeck deck={defaultDeck} selectedValue={null} disabled={false} onSelect={vi.fn()} />);
+    expect(screen.getByLabelText('Coffee break')).toBeInTheDocument();
   });
 });

@@ -1,0 +1,14 @@
+.card-deck-item [data-state="checked"] {
+  transform: translateY(-6px) scale(1.05);
+  box-shadow: 0 8px 20px -4px rgba(5, 32, 60, 0.35);
+  transition: all 200ms ease-in-out;
+}
+
+.card-deck-item [data-state="unchecked"] {
+  transition: all 200ms ease-in-out;
+}
+
+/* WCAG fix: BpkCheckboxCard's disabled text has insufficient contrast */
+.card-deck-item [data-disabled] {
+  color: rgb(98, 105, 113); /* textSecondaryDay */
+}
