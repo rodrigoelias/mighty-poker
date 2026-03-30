@@ -51,8 +51,8 @@ vi.mock('@skyscanner/backpack-web/bpk-component-text', () => {
 });
 
 vi.mock('@skyscanner/backpack-web/bpk-component-input', () => {
-  const BpkInput = (props: React.InputHTMLAttributes<HTMLInputElement>) => (
-    <input {...props} />
+  const BpkInput = ({ valid, ...props }: React.InputHTMLAttributes<HTMLInputElement> & { valid?: boolean | null }) => (
+    <input data-valid={valid === null ? 'null' : valid === undefined ? 'undefined' : String(valid)} {...props} />
   );
   return { default: BpkInput };
 });
@@ -190,5 +190,28 @@ describe('HomePage', () => {
     render(<HomePage />);
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it('inputs have valid=null before being touched', () => {
+    render(<HomePage />);
+    const nameInput = screen.getByPlaceholderText('Alice');
+    const roomInput = screen.getByPlaceholderText('Sprint 42');
+    expect(nameInput).toHaveAttribute('data-valid', 'null');
+    expect(roomInput).toHaveAttribute('data-valid', 'null');
+  });
+
+  it('input shows valid=false after blur when empty', () => {
+    render(<HomePage />);
+    const nameInput = screen.getByPlaceholderText('Alice');
+    fireEvent.blur(nameInput);
+    expect(nameInput).toHaveAttribute('data-valid', 'false');
+  });
+
+  it('input shows valid=true after blur when filled', () => {
+    render(<HomePage />);
+    const nameInput = screen.getByPlaceholderText('Alice');
+    fireEvent.change(nameInput, { target: { value: 'Bob' } });
+    fireEvent.blur(nameInput);
+    expect(nameInput).toHaveAttribute('data-valid', 'true');
   });
 });

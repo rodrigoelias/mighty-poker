@@ -53,8 +53,8 @@ vi.mock('@skyscanner/backpack-web/bpk-component-text', () => {
 });
 
 vi.mock('@skyscanner/backpack-web/bpk-component-input', () => {
-  const BpkInput = (props: React.InputHTMLAttributes<HTMLInputElement>) => (
-    <input {...props} />
+  const BpkInput = ({ valid, ...props }: React.InputHTMLAttributes<HTMLInputElement> & { valid?: boolean | null }) => (
+    <input data-valid={valid === null ? 'null' : valid === undefined ? 'undefined' : String(valid)} {...props} />
   );
   return { default: BpkInput };
 });
@@ -245,6 +245,42 @@ describe('JoinPage', () => {
     const button = await screen.findByRole('button', { name: 'Join Room' });
     expect(button).toBeInTheDocument();
     expect(screen.queryByText('Joining...')).not.toBeInTheDocument();
+  });
+
+  it('name input has valid=null before being touched', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+      status: 200,
+      json: () => Promise.resolve({ name: 'Test Room' }),
+    } as Response);
+
+    render(<JoinPage />);
+    const nameInput = await screen.findByPlaceholderText('Bob');
+    expect(nameInput).toHaveAttribute('data-valid', 'null');
+  });
+
+  it('name input shows valid=false after blur when empty', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+      status: 200,
+      json: () => Promise.resolve({ name: 'Test Room' }),
+    } as Response);
+
+    render(<JoinPage />);
+    const nameInput = await screen.findByPlaceholderText('Bob');
+    fireEvent.blur(nameInput);
+    expect(nameInput).toHaveAttribute('data-valid', 'false');
+  });
+
+  it('name input shows valid=true after blur when filled', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+      status: 200,
+      json: () => Promise.resolve({ name: 'Test Room' }),
+    } as Response);
+
+    render(<JoinPage />);
+    const nameInput = await screen.findByPlaceholderText('Bob');
+    fireEvent.change(nameInput, { target: { value: 'Alice' } });
+    fireEvent.blur(nameInput);
+    expect(nameInput).toHaveAttribute('data-valid', 'true');
   });
 
   it('navigates to home when "Create a new room" is clicked', async () => {

@@ -14,9 +14,19 @@ export default function HomePage() {
   const [roomName, setRoomName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
   const navigate = useNavigate();
   const setIdentity = useRoomStore((s) => s.setIdentity);
   const setRoom = useRoomStore((s) => s.setRoom);
+
+  function handleBlur(field: string) {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+  }
+
+  function getValid(field: string, value: string): boolean | null {
+    if (!touched[field]) return null;
+    return value.trim().length > 0;
+  }
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
@@ -72,6 +82,8 @@ export default function HomePage() {
               type="text"
               value={name}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
+              onBlur={() => handleBlur('name')}
+              valid={getValid('name', name)}
               placeholder="Alice"
               required
             />
@@ -86,6 +98,8 @@ export default function HomePage() {
               type="text"
               value={roomName}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRoomName(e.target.value)}
+              onBlur={() => handleBlur('roomName')}
+              valid={getValid('roomName', roomName)}
               placeholder="Sprint 42"
               required
             />

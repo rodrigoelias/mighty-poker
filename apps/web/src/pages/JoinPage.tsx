@@ -18,6 +18,7 @@ export default function JoinPage() {
   const [roomName, setRoomName] = useState('');
   const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState('');
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
   const navigate = useNavigate();
   const setIdentity = useRoomStore((s) => s.setIdentity);
   const setRoom = useRoomStore((s) => s.setRoom);
@@ -35,6 +36,15 @@ export default function JoinPage() {
       .catch(() => setNotFound(true))
       .finally(() => setChecking(false));
   }, [roomId]);
+
+  function handleBlur(field: string) {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+  }
+
+  function getValid(field: string, value: string): boolean | null {
+    if (!touched[field]) return null;
+    return value.trim().length > 0;
+  }
 
   async function handleJoin(e: React.FormEvent) {
     e.preventDefault();
@@ -128,6 +138,8 @@ export default function JoinPage() {
               type="text"
               value={name}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
+              onBlur={() => handleBlur('name')}
+              valid={getValid('name', name)}
               placeholder="Bob"
               required
             />
