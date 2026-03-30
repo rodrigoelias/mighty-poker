@@ -12,8 +12,7 @@ import { ConnectionBanner } from '../components/ConnectionBanner.js';
 export default function RoomPage() {
   const { roomId } = useParams<{ roomId: string }>();
   const navigate = useNavigate();
-  const { room, participantId, token, myVote, setRoom, setConnected, connected } =
-    useRoomStore();
+  const { room, participantId, token, pendingVote, myVote, connected } = useRoomStore();
 
   useEffect(() => {
     if (!roomId) return;
@@ -24,18 +23,9 @@ export default function RoomPage() {
       return;
     }
 
-    const s = getSocket(token ?? undefined);
-
-    s.on('connect', () => setConnected(true));
-    s.on('disconnect', () => setConnected(false));
-    s.on('room:updated', (updatedRoom) => setRoom(updatedRoom));
-
-    return () => {
-      s.off('connect');
-      s.off('disconnect');
-      s.off('room:updated');
-    };
-  }, [roomId, token, navigate, setRoom, setConnected]);
+    // BUG 1 FIX: only ensure socket exists — listeners are registered in SocketProvider
+    getSocket(token ?? undefined);
+  }, [roomId, token, navigate]);
 
   if (!room) {
     return (
@@ -49,7 +39,7 @@ export default function RoomPage() {
   const isRevealed = room.currentRound.status === 'revealed';
   const isFacilitator =
     room.participants.find((p) => p.id === participantId)?.role === 'facilitator';
-  const currentVote = myVote();
+  const currentVote = pendingVote ?? myVote();
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">

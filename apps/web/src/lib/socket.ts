@@ -1,12 +1,13 @@
 import { io, type Socket } from 'socket.io-client';
 import type { RoomState } from '@mighty-poker/core';
+import { useRoomStore } from '../stores/room-store.js';
 
 let socket: Socket | null = null;
 
-export function getSocket(token?: string): Socket {
-  if (socket?.connected) return socket;
+export const SOCKET_TIMEOUT = 5000;
 
-  if (socket) socket.disconnect();
+export function getSocket(token?: string): Socket {
+  if (socket) return socket; // BUG 4 FIX: return existing socket even during handshake
 
   socket = io('/rooms', {
     auth: token ? { token } : undefined,
@@ -20,6 +21,20 @@ export function getSocket(token?: string): Socket {
 export function disconnectSocket() {
   socket?.disconnect();
   socket = null;
+}
+
+// BUG 3 FIX: helper that adds timeout + rejection to socket emits
+export function emitWithTimeout<T>(s: Socket, event: string, data: unknown): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(
+      () => reject(new Error(`Socket "${event}" timed out after ${SOCKET_TIMEOUT}ms`)),
+      SOCKET_TIMEOUT,
+    );
+    s.emit(event, data, (result: T) => {
+      clearTimeout(timer);
+      resolve(result);
+    });
+  });
 }
 
 export interface CreateRoomResult {
@@ -39,12 +54,8 @@ export function createRoom(
   name: string,
   participantName: string,
 ): Promise<CreateRoomResult> {
-  return new Promise((resolve) => {
-    const s = getSocket();
-    s.emit('room:create', { name, participantName }, (result: CreateRoomResult) => {
-      resolve(result);
-    });
-  });
+  const s = getSocket();
+  return emitWithTimeout<CreateRoomResult>(s, 'room:create', { name, participantName });
 }
 
 export function joinRoom(
@@ -52,38 +63,28 @@ export function joinRoom(
   participantName: string,
   token?: string,
 ): Promise<JoinRoomResult> {
-  return new Promise((resolve) => {
-    const s = token ? getSocket(token) : getSocket();
-    s.emit('room:join', { roomId, participantName, token }, (result: JoinRoomResult) => {
-      resolve(result);
-    });
-  });
+  const s = token ? getSocket(token) : getSocket();
+  return emitWithTimeout<JoinRoomResult>(s, 'room:join', { roomId, participantName, token });
 }
 
 export function startRound(roomId: string): Promise<{ error?: string }> {
-  return new Promise((resolve) => {
-    const s = getSocket();
-    s.emit('round:start', { roomId }, resolve);
-  });
+  const s = getSocket();
+  return emitWithTimeout<{ error?: string }>(s, 'round:start', { roomId });
 }
 
 export function castVote(roomId: string, value: string): Promise<{ error?: string }> {
-  return new Promise((resolve) => {
-    const s = getSocket();
-    s.emit('vote:cast', { roomId, value }, resolve);
-  });
+  // BUG 2 FIX: set pendingVote optimistically before emitting
+  useRoomStore.getState().setPendingVote(value);
+  const s = getSocket();
+  return emitWithTimeout<{ error?: string }>(s, 'vote:cast', { roomId, value });
 }
 
 export function revealVotes(roomId: string): Promise<{ error?: string }> {
-  return new Promise((resolve) => {
-    const s = getSocket();
-    s.emit('round:reveal', { roomId }, resolve);
-  });
+  const s = getSocket();
+  return emitWithTimeout<{ error?: string }>(s, 'round:reveal', { roomId });
 }
 
 export function resetRound(roomId: string): Promise<{ error?: string }> {
-  return new Promise((resolve) => {
-    const s = getSocket();
-    s.emit('round:reset', { roomId }, resolve);
-  });
+  const s = getSocket();
+  return emitWithTimeout<{ error?: string }>(s, 'round:reset', { roomId });
 }
